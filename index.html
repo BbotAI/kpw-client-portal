@@ -670,18 +670,20 @@
     <p>The more detail you give us, the better everything we create sounds like you — not a template.</p>
   </div>
 
-  <!-- BUSINESS NAME -->
+  <!-- BUSINESS NAME + EMAIL VERIFICATION -->
   <div class="biz-name-wrap">
     <label for="businessName">Your Business Name <span style="color:var(--red)">*</span></label>
     <input type="text" id="businessName" placeholder="e.g. Mike's Services LLC" required oninput="saveBizName()" onkeydown="if(event.key==='Enter')loadPortal()">
+    <label for="clientEmail" style="margin-top:14px">YOUR BUSINESS EMAIL <span style="color:var(--red)">*</span></label>
+    <input type="email" id="clientEmail" placeholder="The email you used when you registered with KPW" required oninput="saveClientEmail()" onkeydown="if(event.key==='Enter')loadPortal()">
     <button class="load-portal-btn" id="loadPortalBtn" onclick="loadPortal()">Load Portal →</button>
   </div>
 
   <div class="verify-error-card" id="verifyErrorCard">
-    <h2>We don't have you in our system yet.</h2>
-    <p>To get started with Kansas Prairie Webworks, fill out our intake form first:</p>
-    <a class="verify-error-intake-btn" href="https://bbotai.github.io/kpw-intake" target="_blank">Go to Intake Form</a>
-    <div class="verify-error-contact">Already a client? Call or text Kaleb: 785-577-7695</div>
+    <h2 id="verifyErrorTitle">We don't have you in our system yet.</h2>
+    <p id="verifyErrorMsg">To get started with Kansas Prairie Webworks, fill out our intake form first:</p>
+    <a class="verify-error-intake-btn" id="verifyErrorAction" href="https://bbotai.github.io/kpw-intake" target="_blank">Go to Intake Form</a>
+    <div class="verify-error-contact" id="verifyErrorContact">Already a client? Call or text Kaleb: 785-577-7695</div>
   </div>
 
   <div id="portalContent" style="display:none">
@@ -917,7 +919,7 @@
 // ═══════════════════════════════════════════════════════════
 const CLOUDINARY_CLOUD = 'dxqhuoxzn';
 const CLOUDINARY_PRESET = 'kpw-unsigned';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxptyG_WzMxtWbbghi9rdWAz2qiL7CoYY6sZwq-OxLqtd_fPzmJ8NK1Awpr5wgSelXv/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyR9cYfV-GI7VRHMeKuB9zIWgZxatb2vkOikk8gAPvugXph832vpqF0tku7VmuEYDPs/exec';
 
 let currentTab = 0;
 const savedTabs = new Set();
@@ -948,9 +950,11 @@ const SUCCESS_MSGS = [
 // INIT
 // ═══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  // Restore business name
+  // Restore business name and email
   const saved = localStorage.getItem('kpw_biz_name');
   if (saved) document.getElementById('businessName').value = saved;
+  const savedEmail = localStorage.getItem('kpw_client_email');
+  if (savedEmail) document.getElementById('clientEmail').value = savedEmail;
 
   // Restore saved tabs
   const savedSet = JSON.parse(localStorage.getItem('kpw_saved_tabs') || '[]');
@@ -994,9 +998,15 @@ function saveBizName() {
   localStorage.setItem('kpw_biz_name', document.getElementById('businessName').value);
 }
 
+function saveClientEmail() {
+  localStorage.setItem('kpw_client_email', document.getElementById('clientEmail').value);
+}
+
 async function loadPortal() {
   const bizName = (document.getElementById('businessName').value || '').trim();
+  const email = (document.getElementById('clientEmail').value || '').trim();
   if (!bizName) { document.getElementById('businessName').focus(); return; }
+  if (!email) { document.getElementById('clientEmail').focus(); return; }
 
   const btn = document.getElementById('loadPortalBtn');
   btn.disabled = true;
@@ -1007,7 +1017,7 @@ async function loadPortal() {
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'verifyClient', businessName: bizName })
+      body: JSON.stringify({ action: 'verifyClient', businessName: bizName, email: email })
     });
     const data = await resp.json();
 
@@ -1016,7 +1026,21 @@ async function loadPortal() {
       document.getElementById('submitBar').style.display = 'flex';
       document.getElementById('verifyErrorCard').style.display = 'none';
       btn.textContent = 'Portal Loaded ✓';
+    } else if (data.reason === 'email') {
+      document.getElementById('verifyErrorTitle').textContent = 'Email doesn\'t match.';
+      document.getElementById('verifyErrorMsg').textContent = 'Business name found but email doesn\'t match. Please use the email you registered with.';
+      document.getElementById('verifyErrorAction').style.display = 'none';
+      document.getElementById('verifyErrorContact').textContent = 'Need help? Call Kaleb: 785-577-7695';
+      document.getElementById('verifyErrorCard').style.display = 'block';
+      document.getElementById('portalContent').style.display = 'none';
+      document.getElementById('submitBar').style.display = 'none';
+      btn.disabled = false;
+      btn.textContent = 'Load Portal →';
     } else {
+      document.getElementById('verifyErrorTitle').textContent = 'We don\'t have you in our system yet.';
+      document.getElementById('verifyErrorMsg').textContent = 'To get started with Kansas Prairie Webworks, fill out our intake form first:';
+      document.getElementById('verifyErrorAction').style.display = '';
+      document.getElementById('verifyErrorContact').textContent = 'Already a client? Call or text Kaleb: 785-577-7695';
       document.getElementById('verifyErrorCard').style.display = 'block';
       document.getElementById('portalContent').style.display = 'none';
       document.getElementById('submitBar').style.display = 'none';
