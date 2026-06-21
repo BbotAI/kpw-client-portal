@@ -1014,6 +1014,11 @@ async function loadPortal() {
   document.getElementById('verifyErrorCard').style.display = 'none';
 
   try {
+    console.log('Sending to verify:', JSON.stringify({
+      action: 'verifyClient',
+      businessName: bizName,
+      email: email
+    }));
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
