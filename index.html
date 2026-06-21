@@ -129,6 +129,68 @@
   .biz-name-wrap input:focus { border-color: var(--orange); }
   .biz-name-wrap input::placeholder { color: var(--muted); font-weight: 400; }
 
+  .load-portal-btn {
+    margin-top: 12px;
+    width: 100%;
+    background: var(--orange);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .load-portal-btn:hover { background: var(--orange-light); }
+  .load-portal-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .verify-error-card {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .verify-error-card h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .verify-error-card p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .verify-error-intake-btn {
+    background: var(--orange);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 12px 28px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+    margin-bottom: 16px;
+  }
+  .verify-error-intake-btn:hover { background: var(--orange-light); }
+  .verify-error-contact {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
   /* ── TAB NAV ── */
   .tab-nav-wrap {
     position: sticky;
@@ -611,8 +673,18 @@
   <!-- BUSINESS NAME -->
   <div class="biz-name-wrap">
     <label for="businessName">Your Business Name <span style="color:var(--red)">*</span></label>
-    <input type="text" id="businessName" placeholder="e.g. Mike's Services LLC" required oninput="saveBizName()">
+    <input type="text" id="businessName" placeholder="e.g. Mike's Services LLC" required oninput="saveBizName()" onkeydown="if(event.key==='Enter')loadPortal()">
+    <button class="load-portal-btn" id="loadPortalBtn" onclick="loadPortal()">Load Portal →</button>
   </div>
+
+  <div class="verify-error-card" id="verifyErrorCard">
+    <h2>We don't have you in our system yet.</h2>
+    <p>To get started with Kansas Prairie Webworks, fill out our intake form first:</p>
+    <a class="verify-error-intake-btn" href="https://bbotai.github.io/kpw-intake" target="_blank">Go to Intake Form</a>
+    <div class="verify-error-contact">Already a client? Call or text Kaleb: 785-577-7695</div>
+  </div>
+
+  <div id="portalContent" style="display:none">
 
   <!-- TAB NAV -->
   <div class="tab-nav-wrap">
@@ -813,10 +885,11 @@
       </div>
     </div>
   </div>
+  </div><!-- /portalContent -->
 </div><!-- /main -->
 
 <!-- STICKY SUBMIT BAR -->
-<div class="submit-bar">
+<div class="submit-bar" id="submitBar" style="display:none">
   <div class="submit-bar-text"><strong id="complete-count">0 of 7</strong> sections complete</div>
   <button class="submit-btn" id="submitBtn" onclick="openSubmitModal()">Send Everything to KPW →</button>
 </div>
@@ -844,7 +917,7 @@
 // ═══════════════════════════════════════════════════════════
 const CLOUDINARY_CLOUD = 'dxqhuoxzn';
 const CLOUDINARY_PRESET = 'kpw-unsigned';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwS1_bmi6eC9Qk48XU_tIh3oCm0nGUneEz7L6eAYWBX_I6CjCcdndwVDND8g77J6eue/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxptyG_WzMxtWbbghi9rdWAz2qiL7CoYY6sZwq-OxLqtd_fPzmJ8NK1Awpr5wgSelXv/exec';
 
 let currentTab = 0;
 const savedTabs = new Set();
@@ -919,6 +992,42 @@ function switchTab(idx) {
 // ═══════════════════════════════════════════════════════════
 function saveBizName() {
   localStorage.setItem('kpw_biz_name', document.getElementById('businessName').value);
+}
+
+async function loadPortal() {
+  const bizName = (document.getElementById('businessName').value || '').trim();
+  if (!bizName) { document.getElementById('businessName').focus(); return; }
+
+  const btn = document.getElementById('loadPortalBtn');
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+  document.getElementById('verifyErrorCard').style.display = 'none';
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'verifyClient', businessName: bizName })
+    });
+    const data = await resp.json();
+
+    if (data.verified) {
+      document.getElementById('portalContent').style.display = 'block';
+      document.getElementById('submitBar').style.display = 'flex';
+      document.getElementById('verifyErrorCard').style.display = 'none';
+      btn.textContent = 'Portal Loaded ✓';
+    } else {
+      document.getElementById('verifyErrorCard').style.display = 'block';
+      document.getElementById('portalContent').style.display = 'none';
+      document.getElementById('submitBar').style.display = 'none';
+      btn.disabled = false;
+      btn.textContent = 'Load Portal →';
+    }
+  } catch (err) {
+    alert('Could not reach Agency Brain. Check your connection and try again.');
+    btn.disabled = false;
+    btn.textContent = 'Load Portal →';
+  }
 }
 
 function getSlug() {
