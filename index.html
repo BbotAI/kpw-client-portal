@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPW Client Portal — Tell Your Story</title>
+<style>
+  :root {
+    --dark: #0a0f1e;
+    --darker: #060a15;
+    --card: #111827;
+    --border: #1e293b;
+    --orange: #E67E22;
+    --orange-light: #F39C12;
+    --gold: #F1C40F;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 120px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0f1a2e 0%, #1a2540 100%);
+    border-bottom: 2px solid var(--orange);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .logo-badge {
+    background: var(--orange);
+    color: #fff;
+    font-weight: 900;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  .logo-text { font-size: 15px; font-weight: 600; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--muted); display: block; line-height: 1; }
+  .audio-btn {
+    background: rgba(230,126,34,0.15);
+    border: 1px solid var(--orange);
+    color: var(--orange);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .audio-btn:hover { background: var(--orange); color: #fff; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap {
+    background: var(--darker);
+    height: 4px;
+    position: sticky;
+    top: 60px;
+    z-index: 99;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--gold));
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { max-width: 900px; margin: 0 auto; padding: 28px 16px 0; }
+
+  .page-intro { text-align: center; margin-bottom: 28px; }
+  .page-intro h1 {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .page-intro p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 520px; margin: 0 auto; }
+
+  /* ── BUSINESS NAME ── */
+  .biz-name-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+  .biz-name-wrap label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--orange);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .biz-name-wrap input {
+    width: 100%;
+    background: var(--darker);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .biz-name-wrap input:focus { border-color: var(--orange); }
+  .biz-name-wrap input::placeholder { color: var(--muted); font-weight: 400; }
+
+  /* ── TAB NAV ── */
+  .tab-nav-wrap {
+    position: sticky;
+    top: 64px;
+    z-index: 98;
+    background: var(--darker);
+    border-bottom: 1px solid var(--border);
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+  .tab-nav {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 12px 14px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    position: relative;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: #fff; border-bottom-color: var(--orange); font-weight: 700; }
+  .tab-check {
+    display: none;
+    color: var(--green);
+    font-size: 11px;
+    margin-left: 4px;
+  }
+  .tab-btn.saved .tab-check { display: inline; }
+
+  /* ── TAB PANELS ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .card-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  /* ── IMAGE UPLOAD ── */
+  .img-upload-box {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    background: var(--darker);
+  }
+  .img-upload-box:hover { border-color: var(--orange); }
+  .img-upload-box.has-image { border-style: solid; border-color: var(--green); }
+  .img-upload-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    text-align: center;
+    min-height: 130px;
+  }
+  .img-upload-icon { font-size: 28px; margin-bottom: 8px; }
+  .img-upload-label { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .img-upload-box img.preview {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+  }
+  .img-delete-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    font-weight: 700;
+  }
+  .img-upload-box.has-image .img-delete-btn { display: flex; }
+  .img-upload-box input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .img-upload-box.has-image input[type="file"] { pointer-events: none; }
+  .img-box-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* ── BEFORE/AFTER GRID ── */
+  .ba-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  /* ── 2x2 GRID ── */
+  .grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  /* ── TEXTAREA ── */
+  .field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: block;
+  }
+  textarea {
+    width: 100%;
+    background: var(--darker);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 120px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  textarea:focus { border-color: var(--orange); }
+  textarea::placeholder { color: #475569; }
+  .char-counter {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 4px;
+  }
+  .char-counter.good { color: var(--green); }
+
+  /* ── TEXT INPUTS ── */
+  input[type="text"] {
+    width: 100%;
+    background: var(--darker);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  input[type="text"]:focus { border-color: var(--orange); }
+  input[type="text"]::placeholder { color: #475569; }
+
+  /* ── ADD BUTTON ── */
+  .add-btn {
+    background: rgba(230,126,34,0.1);
+    border: 1px dashed var(--orange);
+    color: var(--orange);
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .add-btn:hover { background: rgba(230,126,34,0.2); }
+  .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── SAVE BUTTON ── */
+  .save-btn {
+    background: var(--orange);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 13px 28px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .save-btn:hover { background: var(--orange-light); transform: translateY(-1px); }
+
+  /* ── SUCCESS TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a2540;
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 14px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 1000;
+    opacity: 0;
+    transition: all 0.3s;
+    text-align: center;
+    max-width: 340px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── CONFETTI CANVAS ── */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ── NAV BUTTONS ── */
+  .tab-nav-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .nav-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 11px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .tab-progress-label { font-size: 13px; color: var(--muted); }
+
+  /* ── LOGO EXPLANATION CARD ── */
+  .logo-explain {
+    background: linear-gradient(135deg, #0f1a2e, #1a2540);
+    border: 1px solid var(--orange);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 20px;
+  }
+  .logo-explain h3 { color: var(--orange); font-size: 15px; margin-bottom: 10px; }
+  .logo-explain p { color: var(--text); font-size: 14px; line-height: 1.65; margin-bottom: 10px; }
+  .logo-explain .format-hint { font-size: 12px; color: var(--muted); font-style: italic; }
+
+  /* ── TEAM CARD ── */
+  .team-card { display: grid; grid-template-columns: 100px 1fr; gap: 16px; align-items: start; }
+  @media(max-width: 500px) { .team-card { grid-template-columns: 1fr; } }
+
+  /* ── STICKY SUBMIT BAR ── */
+  .submit-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #0f1a2e;
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .submit-bar-text { font-size: 13px; color: var(--muted); }
+  .submit-bar-text strong { color: var(--text); }
+  .submit-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: not-allowed;
+    white-space: nowrap;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .submit-btn.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+    cursor: pointer;
+  }
+  .submit-btn.active:hover { background: var(--orange-light); }
+
+  /* ── SUBMIT MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal h2 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .modal .modal-sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .summary-row:last-of-type { border-bottom: none; }
+  .summary-row .label { color: var(--muted); }
+  .summary-row .value { font-weight: 600; color: var(--text); }
+  .word-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 12px;
+    width: 100%;
+    text-align: center;
+  }
+  .word-badge.low { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid var(--red); }
+  .word-badge.mid { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid var(--green); }
+  .word-badge.high { background: rgba(241,196,15,0.1); color: var(--gold); border: 1px solid var(--gold); }
+  .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-cancel {
+    flex: 1;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .modal-confirm {
+    flex: 2;
+    background: var(--orange);
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .modal-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── UPLOAD PROGRESS ── */
+  .upload-status {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    display: none;
+  }
+  .upload-file-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .upload-file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .upload-file-status { font-size: 12px; }
+  .upload-file-status.done { color: var(--green); }
+  .upload-file-status.uploading { color: var(--orange); }
+  .upload-file-status.error { color: var(--red); }
+
+  @media(max-width: 640px) {
+    .submit-bar { flex-direction: column; align-items: stretch; }
+    .submit-btn { text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <div class="logo-badge">KPW</div>
+      <div>
+        <span class="logo-text">Client Portal</span>
+        <span class="logo-sub">Kansas Prairie Webworks</span>
+      </div>
+    </div>
+    <button class="audio-btn" onclick="playWelcome()" id="audioBtn">🎙 Welcome</button>
+  </div>
+</header>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressFill"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="page-intro">
+    <h1>Help us tell your story right.</h1>
+    <p>The more detail you give us, the better everything we create sounds like you — not a template.</p>
+  </div>
+
+  <!-- BUSINESS NAME -->
+  <div class="biz-name-wrap">
+    <label for="businessName">Your Business Name <span style="color:var(--red)">*</span></label>
+    <input type="text" id="businessName" placeholder="e.g. Mike's Services LLC" required oninput="saveBizName()">
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tab-nav-wrap">
+    <nav class="tab-nav" id="tabNav">
+      <button class="tab-btn active" onclick="switchTab(0)" data-tab="0">📸 Project<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(1)" data-tab="1">↔️ Before &amp; After<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(2)" data-tab="2">🏆 Full Job<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(3)" data-tab="3">👥 Team<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(4)" data-tab="4">👤 Owner<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(5)" data-tab="5">🎨 Logo<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(6)" data-tab="6">📋 More<span class="tab-check">✓</span></button>
+    </nav>
+  </div>
+
+  <!-- ═══════════ TAB 0: PROJECT ═══════════ -->
+  <div class="tab-panel active" id="tab-0">
+    <div style="margin-top:20px">
+      <div class="panel-title">📸 Project Photos</div>
+      <div class="panel-sub">Share up to 5 individual job photos with your own description of what happened.</div>
+      <div id="singles-container"></div>
+      <button class="add-btn" id="add-single-btn" onclick="addSingle()">+ Add Another Project</button>
+      <button class="save-btn" onclick="saveTab(0)">Save Project Photos</button>
+      <div class="tab-nav-buttons">
+        <button class="nav-btn" disabled>← Previous</button>
+        <span class="tab-progress-label">Tab 1 of 7</span>
+        <button class="nav-btn" onclick="switchTab(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB 1: BEFORE & AFTER ═══════════ -->
+  <div class="tab-panel" id="tab-1">
+    <div style="margin-top:20px">
+      <div class="panel-title">↔️ Before &amp; After</div>
+      <div class="panel-sub">Show the transformation. Side-by-side before and after photos with the story of what you fixed.</div>
+      <div id="ba-container"></div>
+      <button class="add-btn" id="add-ba-btn" onclick="addBA()">+ Add Another Set</button>
+      <button class="save-btn" onclick="saveTab(1)">Save Before &amp; After</button>
+      <div class="tab-nav-buttons">
+        <button class="nav-btn" onclick="switchTab(0)">← Previous</button>
+        <span class="tab-progress-label">Tab 2 of 7</span>
+        <button class="nav-btn" onclick="switchTab(2)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB 2: FULL JOB ═══════════ -->
+  <div class="tab-panel" id="tab-2">
+    <div style="margin-top:20px">
+      <div class="panel-title">🏆 Complete Job Documentation</div>
+      <div class="panel-sub">Walk us through a full job from start to finish — before, during, and after.</div>
+      <div id="complete-container"></div>
+      <button class="add-btn" id="add-complete-btn" onclick="addComplete()">+ Add Another Job</button>
+      <button class="save-btn" onclick="saveTab(2)">Save Full Jobs</button>
+      <div class="tab-nav-buttons">
+        <button class="nav-btn" onclick="switchTab(1)">← Previous</button>
+        <span class="tab-progress-label">Tab 3 of 7</span>
+        <button class="nav-btn" onclick="switchTab(3)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB 3: TEAM ═══════════ -->
+  <div class="tab-panel" id="tab-3">
+    <div style="margin-top:20px">
+      <div class="panel-title">👥 Your Team</div>
+      <div class="panel-sub">Faces build trust. Add up to 10 staff members — even a one-liner about what they're great at helps.</div>
+      <div id="team-container"></div>
+      <button class="add-btn" id="add-team-btn" onclick="addTeam()">+ Add Team Member</button>
+      <button class="save-btn" onclick="saveTab(3)">Save Team</button>
+      <div class="tab-nav-buttons">
+        <button class="nav-btn" onclick="switchTab(2)">← Previous</button>
+        <span class="tab-progress-label">Tab 4 of 7</span>
+        <button class="nav-btn" onclick="switchTab(4)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB 4: OWNER ═══════════ -->
+  <div class="tab-panel" id="tab-4">
+    <div style="margin-top:20px">
+      <div class="panel-title">👤 About the Owner</div>
+      <div class="panel-sub">Customers want to know who they're hiring. Your story matters more than you think.</div>
+      <div class="card">
+        <div class="card-num">Owner Photo</div>
+        <div class="img-upload-box" id="owner-photo-box" style="max-width:180px">
+          <div class="img-upload-inner">
+            <div class="img-upload-icon">📷</div>
+            <div class="img-upload-label">Upload your photo</div>
+          </div>
+          <button class="img-delete-btn" onclick="deleteImage('owner-photo-box', event)">×</button>
+          <input type="file" accept="image/*" onchange="previewImage(this, 'owner-photo-box')">
+        </div>
+        <div style="margin-top:16px">
+          <label class="field-label" for="owner-name">Your Name</label>
+          <input type="text" id="owner-name" placeholder="e.g. Mike Johnson">
+          <label class="field-label" for="owner-story">Tell us about yourself and your business</label>
+          <textarea id="owner-story" rows="5" placeholder="I started with one backhoe and a phone number on a sign 20 years ago..." oninput="updateCounter(this)"></textarea>
+          <div class="char-counter" id="owner-story-counter">0 characters</div>
+          <label class="field-label" for="owner-want" style="margin-top:14px">What do you want customers to know?</label>
+          <textarea id="owner-want" rows="4" placeholder="I answer my own phone. You'll never get a call center." oninput="updateCounter(this)"></textarea>
+          <div class="char-counter" id="owner-want-counter">0 characters</div>
+        </div>
+      </div>
+      <button class="save-btn" onclick="saveTab(4)">Save Owner Info</button>
+      <div class="tab-nav-buttons">
+        <button class="nav-btn" onclick="switchTab(3)">← Previous</button>
+        <span class="tab-progress-label">Tab 5 of 7</span>
+        <button class="nav-btn" onclick="switchTab(5)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB 5: LOGO ═══════════ -->
+  <div class="tab-panel" id="tab-5">
+    <div style="margin-top:20px">
+      <div class="panel-title">🎨 Your Logo</div>
+      <div class="panel-sub">Your logo goes at the bottom of every blog post we write for you.</div>
+      <div class="card">
+        <div class="card-num">Logo File</div>
+        <div class="img-upload-box" id="logo-box" style="max-width:260px">
+          <div class="img-upload-inner">
+            <div class="img-upload-icon">🖼️</div>
+            <div class="img-upload-label">Upload your logo<br><small>PNG, JPG accepted</small></div>
+          </div>
+          <button class="img-delete-btn" onclick="deleteImage('logo-box', event)">×</button>
+          <input type="file" accept="image/*" onchange="previewImage(this, 'logo-box')">
+        </div>
+      </div>
+      <div class="logo-explain">
+        <h3>How we use your logo</h3>
+        <p>Your logo appears at the bottom of every blog post we write for you — your digital signature on every piece of content. We also use it on your Google Business Profile and Facebook to keep your brand consistent everywhere customers find you.</p>
+        <p>No logo file? A clear photo of your truck door, business card, or sign works great too.</p>
+        <div class="format-hint">PNG with transparent background is best. JPG works fine too.</div>
+      </div>
+      <button class="save-btn" onclick="saveTab(5)">Save Logo</button>
+      <div class="tab-nav-buttons">
+        <button class="nav-btn" onclick="switchTab(4)">← Previous</button>
+        <span class="tab-progress-label">Tab 6 of 7</span>
+        <button class="nav-btn" onclick="switchTab(6)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB 6: MORE ═══════════ -->
+  <div class="tab-panel" id="tab-6">
+    <div style="margin-top:20px">
+      <div class="panel-title">📋 More (Optional)</div>
+      <div class="panel-sub">Business cards, truck photos, signage — anything else that helps us represent you.</div>
+
+      <div class="card">
+        <div class="card-num">Business Card</div>
+        <div class="ba-grid">
+          <div>
+            <div class="img-upload-box" id="bizcard-front-box">
+              <div class="img-upload-inner"><div class="img-upload-icon">💳</div><div class="img-upload-label">Front</div></div>
+              <button class="img-delete-btn" onclick="deleteImage('bizcard-front-box', event)">×</button>
+              <input type="file" accept="image/*" onchange="previewImage(this, 'bizcard-front-box')">
+            </div>
+          </div>
+          <div>
+            <div class="img-upload-box" id="bizcard-back-box">
+              <div class="img-upload-inner"><div class="img-upload-icon">💳</div><div class="img-upload-label">Back</div></div>
+              <button class="img-delete-btn" onclick="deleteImage('bizcard-back-box', event)">×</button>
+              <input type="file" accept="image/*" onchange="previewImage(this, 'bizcard-back-box')">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">Truck / Equipment Photos (up to 5)</div>
+        <div id="truck-container"></div>
+        <button class="add-btn" id="add-truck-btn" onclick="addTruck()">+ Add Truck/Equipment Photo</button>
+      </div>
+
+      <div class="card">
+        <div class="card-num">Signage / Storefront</div>
+        <div class="img-upload-box" id="sign-box">
+          <div class="img-upload-inner"><div class="img-upload-icon">🏢</div><div class="img-upload-label">Sign or storefront photo</div></div>
+          <button class="img-delete-btn" onclick="deleteImage('sign-box', event)">×</button>
+          <input type="file" accept="image/*" onchange="previewImage(this, 'sign-box')">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">Anything Else?</div>
+        <label class="field-label" for="extra-notes">Anything we should know about your business, customers, or work?</label>
+        <textarea id="extra-notes" rows="5" placeholder="We do a lot of emergency calls on weekends. Most of our customers are farmers on 40+ acres..." oninput="updateCounter(this)"></textarea>
+        <div class="char-counter" id="extra-notes-counter">0 characters</div>
+      </div>
+
+      <button class="save-btn" onclick="saveTab(6)">Save Extras</button>
+      <div class="tab-nav-buttons">
+        <button class="nav-btn" onclick="switchTab(5)">← Previous</button>
+        <span class="tab-progress-label">Tab 7 of 7</span>
+        <button class="nav-btn" disabled>Next →</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /main -->
+
+<!-- STICKY SUBMIT BAR -->
+<div class="submit-bar">
+  <div class="submit-bar-text"><strong id="complete-count">0 of 7</strong> sections complete</div>
+  <button class="submit-btn" id="submitBtn" onclick="openSubmitModal()">Send Everything to KPW →</button>
+</div>
+
+<!-- SUBMIT MODAL -->
+<div class="modal-overlay" id="submitModal">
+  <div class="modal">
+    <h2>Ready to send?</h2>
+    <div class="modal-sub">Here's what we'll send to KPW. Review and confirm.</div>
+    <div id="summary-content"></div>
+    <div id="upload-status" class="upload-status"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Go Back</button>
+      <button class="modal-confirm" id="confirmBtn" onclick="submitAll()">Send Everything to KPW</button>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIO (loaded dynamically) -->
+<audio id="welcomeAudio" preload="none"></audio>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+const CLOUDINARY_CLOUD = 'dxqhuoxzn';
+const CLOUDINARY_PRESET = 'kpw-unsigned';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyu3_9kOTfsCldjees8Wqk_6DkB7noRz1RW4ZazxX04C6ag0TqqlrBPGHEXnyg49v_V/exec';
+
+let currentTab = 0;
+const savedTabs = new Set();
+const imageFiles = {}; // boxId -> File
+const imageUrls = {};  // boxId -> uploaded URL
+
+let singleCount = 0;
+let baCount = 0;
+let completeCount = 0;
+let teamCount = 0;
+let truckCount = 0;
+
+const MAX_SINGLES = 5;
+const MAX_BA = 3;
+const MAX_COMPLETE = 3;
+const MAX_TEAM = 10;
+const MAX_TRUCKS = 5;
+
+const SUCCESS_MSGS = [
+  "Perfect — going straight into your content engine.",
+  "That's gold. Real job photos like that rank.",
+  "Nice work. Your content just got better.",
+  "Saved. Kaleb's system just got smarter about your business.",
+  "That description alone will improve your Google ranking."
+];
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore business name
+  const saved = localStorage.getItem('kpw_biz_name');
+  if (saved) document.getElementById('businessName').value = saved;
+
+  // Restore saved tabs
+  const savedSet = JSON.parse(localStorage.getItem('kpw_saved_tabs') || '[]');
+  savedSet.forEach(i => markTabSaved(i));
+
+  // Init first items
+  addSingle();
+  addBA();
+  addComplete();
+  addTeam();
+  addTruck();
+
+  // Set audio src
+  document.getElementById('welcomeAudio').src = 'upload_welcome.mp3';
+
+  updateProgress();
+  updateSubmitBar();
+});
+
+// ═══════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function switchTab(idx) {
+  document.querySelectorAll('.tab-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  currentTab = idx;
+  // Scroll tab button into view
+  const btn = document.querySelector(`.tab-btn[data-tab="${idx}"]`);
+  if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════════
+// BUSINESS NAME
+// ═══════════════════════════════════════════════════════════
+function saveBizName() {
+  localStorage.setItem('kpw_biz_name', document.getElementById('businessName').value);
+}
+
+function getSlug() {
+  return (document.getElementById('businessName').value || 'unknown')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+// ═══════════════════════════════════════════════════════════
+// IMAGE HANDLING
+// ═══════════════════════════════════════════════════════════
+function previewImage(input, boxId) {
+  const file = input.files[0];
+  if (!file) return;
+  imageFiles[boxId] = file;
+  const box = document.getElementById(boxId);
+  const reader = new FileReader();
+  reader.onload = e => {
+    box.classList.add('has-image');
+    // Replace inner content with preview
+    const inner = box.querySelector('.img-upload-inner');
+    if (inner) inner.style.display = 'none';
+    let img = box.querySelector('img.preview');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'preview';
+      box.insertBefore(img, box.querySelector('.img-delete-btn'));
+    }
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteImage(boxId, e) {
+  e.stopPropagation();
+  const box = document.getElementById(boxId);
+  box.classList.remove('has-image');
+  const img = box.querySelector('img.preview');
+  if (img) img.remove();
+  const inner = box.querySelector('.img-upload-inner');
+  if (inner) inner.style.display = '';
+  const fileInput = box.querySelector('input[type="file"]');
+  if (fileInput) fileInput.value = '';
+  delete imageFiles[boxId];
+  delete imageUrls[boxId];
+}
+
+// ═══════════════════════════════════════════════════════════
+// DYNAMIC CARD BUILDERS
+// ═══════════════════════════════════════════════════════════
+function addSingle() {
+  if (singleCount >= MAX_SINGLES) return;
+  const n = singleCount++;
+  const boxId = `single-img-${n}`;
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.id = `single-card-${n}`;
+  el.innerHTML = `
+    <div class="card-num">Project ${n + 1}</div>
+    <div class="img-upload-box" id="${boxId}">
+      <div class="img-upload-inner">
+        <div class="img-upload-icon">📷</div>
+        <div class="img-upload-label">Click to upload a job photo</div>
+      </div>
+      <button class="img-delete-btn" onclick="deleteImage('${boxId}', event)">×</button>
+      <input type="file" accept="image/*" onchange="previewImage(this, '${boxId}')">
+    </div>
+    <div style="margin-top:12px">
+      <label class="field-label">Tell us about this job in your own words</label>
+      <textarea id="single-desc-${n}" rows="4"
+        placeholder="We got a call from a family who hadn't had their tank pumped in 15 years..."
+        oninput="updateCounter(this)"></textarea>
+      <div class="char-counter" id="single-desc-${n}-counter">0 characters</div>
+    </div>
+  `;
+  document.getElementById('singles-container').appendChild(el);
+  if (singleCount >= MAX_SINGLES) {
+    document.getElementById('add-single-btn').disabled = true;
+  }
+}
+
+function addBA() {
+  if (baCount >= MAX_BA) return;
+  const n = baCount++;
+  const beforeId = `ba-before-${n}`;
+  const afterId = `ba-after-${n}`;
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.id = `ba-card-${n}`;
+  el.innerHTML = `
+    <div class="card-num">Before &amp; After Set ${n + 1}</div>
+    <div class="ba-grid">
+      <div>
+        <div class="img-upload-box" id="${beforeId}">
+          <div class="img-upload-inner"><div class="img-upload-icon">📷</div><div class="img-upload-label">Before</div></div>
+          <button class="img-delete-btn" onclick="deleteImage('${beforeId}', event)">×</button>
+          <input type="file" accept="image/*" onchange="previewImage(this, '${beforeId}')">
+        </div>
+        <div class="img-box-label">Before</div>
+      </div>
+      <div>
+        <div class="img-upload-box" id="${afterId}">
+          <div class="img-upload-inner"><div class="img-upload-icon">📷</div><div class="img-upload-label">After</div></div>
+          <button class="img-delete-btn" onclick="deleteImage('${afterId}', event)">×</button>
+          <input type="file" accept="image/*" onchange="previewImage(this, '${afterId}')">
+        </div>
+        <div class="img-box-label">After</div>
+      </div>
+    </div>
+    <label class="field-label">What was the problem and what did you fix?</label>
+    <textarea id="ba-desc-${n}" rows="4"
+      placeholder="The drain field had completely failed. Standing water in the yard..."
+      oninput="updateCounter(this)"></textarea>
+    <div class="char-counter" id="ba-desc-${n}-counter">0 characters</div>
+  `;
+  document.getElementById('ba-container').appendChild(el);
+  if (baCount >= MAX_BA) document.getElementById('add-ba-btn').disabled = true;
+}
+
+function addComplete() {
+  if (completeCount >= MAX_COMPLETE) return;
+  const n = completeCount++;
+  const ids = [`cj-b4-${n}`, `cj-mid-${n}`, `cj-fin-${n}`, `cj-fin2-${n}`];
+  const labels = ['Before', 'The messy middle', 'Finished', 'Finished — different angle'];
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.id = `complete-card-${n}`;
+  const gridHtml = ids.map((id, i) => `
+    <div>
+      <div class="img-upload-box" id="${id}">
+        <div class="img-upload-inner"><div class="img-upload-icon">📷</div><div class="img-upload-label">${labels[i]}</div></div>
+        <button class="img-delete-btn" onclick="deleteImage('${id}', event)">×</button>
+        <input type="file" accept="image/*" onchange="previewImage(this, '${id}')">
+      </div>
+      <div class="img-box-label">${labels[i]}</div>
+    </div>
+  `).join('');
+  el.innerHTML = `
+    <div class="card-num">Complete Job ${n + 1}</div>
+    <div class="grid-2x2">${gridHtml}</div>
+    <label class="field-label">Walk us through this job start to finish</label>
+    <textarea id="cj-desc-${n}" rows="5"
+      placeholder="This was a full install on 40 acres. Clay soil, caliche at 2 feet, took an extra day..."
+      oninput="updateCounter(this)"></textarea>
+    <div class="char-counter" id="cj-desc-${n}-counter">0 characters</div>
+  `;
+  document.getElementById('complete-container').appendChild(el);
+  if (completeCount >= MAX_COMPLETE) document.getElementById('add-complete-btn').disabled = true;
+}
+
+function addTeam() {
+  if (teamCount >= MAX_TEAM) return;
+  const n = teamCount++;
+  const photoId = `team-photo-${n}`;
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.id = `team-card-${n}`;
+  el.innerHTML = `
+    <div class="card-num">Team Member ${n + 1}</div>
+    <div class="team-card">
+      <div>
+        <div class="img-upload-box" id="${photoId}">
+          <div class="img-upload-inner"><div class="img-upload-icon">👤</div><div class="img-upload-label">Photo</div></div>
+          <button class="img-delete-btn" onclick="deleteImage('${photoId}', event)">×</button>
+          <input type="file" accept="image/*" onchange="previewImage(this, '${photoId}')">
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Name</label>
+        <input type="text" id="team-name-${n}" placeholder="First and last name">
+        <label class="field-label">Role / Title</label>
+        <input type="text" id="team-role-${n}" placeholder="e.g. Equipment Operator">
+        <label class="field-label">One thing they're great at</label>
+        <input type="text" id="team-strength-${n}" placeholder="Been operating the excavator since he was 16">
+      </div>
+    </div>
+  `;
+  document.getElementById('team-container').appendChild(el);
+  if (teamCount >= MAX_TEAM) document.getElementById('add-team-btn').disabled = true;
+}
+
+function addTruck() {
+  if (truckCount >= MAX_TRUCKS) return;
+  const n = truckCount++;
+  const boxId = `truck-${n}`;
+  const el = document.createElement('div');
+  el.style.marginBottom = '10px';
+  el.id = `truck-card-${n}`;
+  el.innerHTML = `
+    <div class="img-upload-box" id="${boxId}">
+      <div class="img-upload-inner"><div class="img-upload-icon">🚛</div><div class="img-upload-label">Truck or equipment photo</div></div>
+      <button class="img-delete-btn" onclick="deleteImage('${boxId}', event)">×</button>
+      <input type="file" accept="image/*" onchange="previewImage(this, '${boxId}')">
+    </div>
+  `;
+  document.getElementById('truck-container').appendChild(el);
+  if (truckCount >= MAX_TRUCKS) document.getElementById('add-truck-btn').disabled = true;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHAR COUNTER
+// ═══════════════════════════════════════════════════════════
+function updateCounter(el) {
+  const len = el.value.length;
+  const counterId = el.id + '-counter';
+  const counter = document.getElementById(counterId);
+  if (!counter) return;
+  counter.textContent = len + ' characters';
+  counter.classList.toggle('good', len >= 80);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SAVE TAB
+// ═══════════════════════════════════════════════════════════
+function saveTab(idx) {
+  markTabSaved(idx);
+  celebrate();
+  updateProgress();
+  updateSubmitBar();
+}
+
+function markTabSaved(idx) {
+  savedTabs.add(idx);
+  const btn = document.querySelector(`.tab-btn[data-tab="${idx}"]`);
+  if (btn) btn.classList.add('saved');
+  // Persist
+  localStorage.setItem('kpw_saved_tabs', JSON.stringify([...savedTabs]));
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════════════════════════
+function updateProgress() {
+  const pct = (savedTabs.size / 7) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function updateSubmitBar() {
+  document.getElementById('complete-count').textContent = savedTabs.size + ' of 7';
+  const btn = document.getElementById('submitBtn');
+  if (savedTabs.size > 0) {
+    btn.classList.add('active');
+  } else {
+    btn.classList.remove('active');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CELEBRATE
+// ═══════════════════════════════════════════════════════════
+function celebrate() {
+  launchConfetti();
+  playChime();
+  showToast(SUCCESS_MSGS[Math.floor(Math.random() * SUCCESS_MSGS.length)]);
+}
+
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = [];
+  const colors = ['#E67E22', '#F1C40F', '#ffffff', '#F39C12', '#FDE68A'];
+
+  for (let i = 0; i < 200; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -10 - Math.random() * 100,
+      w: 6 + Math.random() * 8,
+      h: 8 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 8,
+      vy: 3 + Math.random() * 5,
+      vx: (Math.random() - 0.5) * 3
+    });
+  }
+
+  let frame = 0;
+  const maxFrames = 90;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rot * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - frame / maxFrames);
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+      p.y += p.vy;
+      p.x += p.vx;
+      p.rot += p.rotSpeed;
+    });
+    frame++;
+    if (frame < maxFrames) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [[523, 0], [659, 0.18], [784, 0.36]].forEach(([freq, delay]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + delay);
+      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + delay + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.55);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.6);
+    });
+  } catch(e) {}
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUDIO WELCOME
+// ═══════════════════════════════════════════════════════════
+function playWelcome() {
+  const audio = document.getElementById('welcomeAudio');
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    document.getElementById('audioBtn').textContent = '⏹ Stop';
+  } else {
+    audio.pause();
+    audio.currentTime = 0;
+    document.getElementById('audioBtn').textContent = '🎙 Welcome';
+  }
+}
+document.getElementById('welcomeAudio').addEventListener('ended', () => {
+  document.getElementById('audioBtn').textContent = '🎙 Welcome';
+});
+
+// ═══════════════════════════════════════════════════════════
+// SUBMIT MODAL
+// ═══════════════════════════════════════════════════════════
+function openSubmitModal() {
+  if (savedTabs.size === 0) return;
+  buildSummary();
+  document.getElementById('submitModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('submitModal').classList.remove('open');
+  document.getElementById('upload-status').style.display = 'none';
+  document.getElementById('confirmBtn').disabled = false;
+  document.getElementById('confirmBtn').textContent = 'Send Everything to KPW';
+}
+
+function buildSummary() {
+  const biz = document.getElementById('businessName').value || '(no name entered)';
+  let totalWords = 0;
+  let imageCount = {};
+
+  // count images by category
+  const countImgs = (prefix, max) => {
+    let c = 0;
+    for (let i = 0; i < max; i++) {
+      if (imageFiles[prefix + i]) c++;
+    }
+    return c;
+  };
+
+  imageCount['Project photos'] = countImgs('single-img-', MAX_SINGLES);
+
+  let baImgs = 0;
+  for (let i = 0; i < MAX_BA; i++) {
+    if (imageFiles[`ba-before-${i}`]) baImgs++;
+    if (imageFiles[`ba-after-${i}`]) baImgs++;
+  }
+  imageCount['Before/After'] = baImgs;
+
+  let cjImgs = 0;
+  for (let i = 0; i < MAX_COMPLETE; i++) {
+    ['b4','mid','fin','fin2'].forEach(k => { if (imageFiles[`cj-${k}-${i}`]) cjImgs++; });
+  }
+  imageCount['Full job'] = cjImgs;
+  imageCount['Team photos'] = countImgs('team-photo-', MAX_TEAM);
+  imageCount['Truck photos'] = countImgs('truck-', MAX_TRUCKS);
+
+  // word count from all textareas
+  document.querySelectorAll('textarea').forEach(t => {
+    totalWords += t.value.trim().split(/\s+/).filter(Boolean).length;
+  });
+
+  let badge, badgeClass;
+  if (totalWords < 50) { badge = 'Add more detail for better results'; badgeClass = 'low'; }
+  else if (totalWords < 150) { badge = 'Good — Claude will work with this'; badgeClass = 'mid'; }
+  else { badge = 'Excellent — your content will sound like you'; badgeClass = 'high'; }
+
+  const html = `
+    <div class="summary-row"><span class="label">Business</span><span class="value">${biz}</span></div>
+    <div class="summary-row"><span class="label">Sections saved</span><span class="value">${savedTabs.size} of 7</span></div>
+    ${Object.entries(imageCount).filter(([,v]) => v > 0).map(([k,v]) => `
+      <div class="summary-row"><span class="label">${k}</span><span class="value">${v} image${v!==1?'s':''}</span></div>
+    `).join('')}
+    <div class="summary-row"><span class="label">Total word count</span><span class="value">${totalWords} words</span></div>
+    <div class="word-badge ${badgeClass}">${badge}</div>
+  `;
+  document.getElementById('summary-content').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// UPLOAD TO CLOUDINARY
+// ═══════════════════════════════════════════════════════════
+async function uploadToCloudinary(file, folder) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  formData.append('folder', folder);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: 'POST',
+    body: formData
+  });
+  if (!res.ok) throw new Error('Upload failed');
+  const data = await res.json();
+  return data.secure_url;
+}
+
+function addUploadRow(name) {
+  const statusEl = document.getElementById('upload-status');
+  statusEl.style.display = 'block';
+  const row = document.createElement('div');
+  row.className = 'upload-file-row';
+  row.id = 'uprow-' + name.replace(/[^a-z0-9]/gi, '_');
+  row.innerHTML = `<span class="upload-file-name">${name}</span><span class="upload-file-status uploading" id="upstat-${name.replace(/[^a-z0-9]/gi,'_')}">Uploading…</span>`;
+  statusEl.appendChild(row);
+  return name.replace(/[^a-z0-9]/gi, '_');
+}
+
+function setUploadStatus(key, status, ok) {
+  const el = document.getElementById('upstat-' + key);
+  if (!el) return;
+  el.textContent = status;
+  el.className = 'upload-file-status ' + (ok ? 'done' : 'error');
+}
+
+// ═══════════════════════════════════════════════════════════
+// SUBMIT ALL
+// ═══════════════════════════════════════════════════════════
+async function submitAll() {
+  const biz = document.getElementById('businessName').value.trim();
+  if (!biz) { alert('Please enter your business name first.'); return; }
+
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.textContent = 'Uploading…';
+
+  const slug = getSlug();
+  const base = `kpw-clients/${slug}`;
+
+  const upload = async (boxId, folder) => {
+    if (!imageFiles[boxId]) return null;
+    const key = addUploadRow(imageFiles[boxId].name);
+    try {
+      const url = await uploadToCloudinary(imageFiles[boxId], `${base}/${folder}`);
+      imageUrls[boxId] = url;
+      setUploadStatus(key, '✓ Done', true);
+      return url;
+    } catch(e) {
+      setUploadStatus(key, '✗ Failed', false);
+      return null;
+    }
+  };
+
+  // Build payload
+  const payload = {
+    action: 'updateClientPortal',
+    clientSlug: slug,
+    businessName: biz,
+    projects: { single: [], beforeAfter: [], complete: [] },
+    team: [],
+    owner: {},
+    logo: {},
+    extra: { images: [], notes: '' }
+  };
+
+  // Singles
+  for (let i = 0; i < singleCount; i++) {
+    const imgUrl = await upload(`single-img-${i}`, 'projects/single');
+    const desc = document.getElementById(`single-desc-${i}`)?.value || '';
+    if (imgUrl || desc) payload.projects.single.push({ imageUrl: imgUrl || '', description: desc });
+  }
+
+  // Before/After
+  for (let i = 0; i < baCount; i++) {
+    const bUrl = await upload(`ba-before-${i}`, 'projects/before-after');
+    const aUrl = await upload(`ba-after-${i}`, 'projects/before-after');
+    const desc = document.getElementById(`ba-desc-${i}`)?.value || '';
+    if (bUrl || aUrl || desc) payload.projects.beforeAfter.push({ beforeUrl: bUrl||'', afterUrl: aUrl||'', description: desc });
+  }
+
+  // Complete jobs
+  for (let i = 0; i < completeCount; i++) {
+    const imgs = [];
+    for (const k of ['b4','mid','fin','fin2']) {
+      const u = await upload(`cj-${k}-${i}`, 'projects/complete');
+      imgs.push(u || '');
+    }
+    const desc = document.getElementById(`cj-desc-${i}`)?.value || '';
+    if (imgs.some(Boolean) || desc) payload.projects.complete.push({ images: imgs, description: desc });
+  }
+
+  // Team
+  for (let i = 0; i < teamCount; i++) {
+    const photoUrl = await upload(`team-photo-${i}`, 'team');
+    const name = document.getElementById(`team-name-${i}`)?.value || '';
+    const role = document.getElementById(`team-role-${i}`)?.value || '';
+    const strength = document.getElementById(`team-strength-${i}`)?.value || '';
+    if (name || photoUrl) payload.team.push({ photoUrl: photoUrl||'', name, role, strength });
+  }
+
+  // Owner
+  const ownerPhoto = await upload('owner-photo-box', 'owner');
+  payload.owner = {
+    photoUrl: ownerPhoto || '',
+    name: document.getElementById('owner-name')?.value || '',
+    story: document.getElementById('owner-story')?.value || '',
+    wantCustomersToKnow: document.getElementById('owner-want')?.value || ''
+  };
+
+  // Logo
+  const logoUrl = await upload('logo-box', 'logo');
+  payload.logo = { url: logoUrl || '' };
+
+  // Extra
+  const extraImgs = [];
+  const bcFront = await upload('bizcard-front-box', 'extra');
+  const bcBack = await upload('bizcard-back-box', 'extra');
+  if (bcFront) extraImgs.push(bcFront);
+  if (bcBack) extraImgs.push(bcBack);
+  for (let i = 0; i < truckCount; i++) {
+    const u = await upload(`truck-${i}`, 'extra');
+    if (u) extraImgs.push(u);
+  }
+  const signUrl = await upload('sign-box', 'extra');
+  if (signUrl) extraImgs.push(signUrl);
+  payload.extra = {
+    images: extraImgs,
+    notes: document.getElementById('extra-notes')?.value || ''
+  };
+
+  // POST to Apps Script
+  btn.textContent = 'Sending to KPW…';
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    btn.textContent = '✓ Sent!';
+    // Clear saved state
+    localStorage.removeItem('kpw_saved_tabs');
+    setTimeout(() => {
+      closeModal();
+      showToast('Everything sent to KPW. Kaleb will be in touch!');
+    }, 1200);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Retry Send';
+    showToast('Send failed — check your connection and try again.');
+  }
+}
+</script>
+</body>
+</html>
