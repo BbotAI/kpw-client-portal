@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KPW Client Portal â€” Tell Your Story</title>
+<title>KPW Client Portal — Tell Your Story</title>
 <style>
   :root {
     --dark: #0a0f1e;
@@ -28,7 +28,7 @@
     padding-bottom: 120px;
   }
 
-  /* â”€â”€ HEADER â”€â”€ */
+  /* ── HEADER ── */
   .header {
     background: linear-gradient(135deg, #0f1a2e 0%, #1a2540 100%);
     border-bottom: 2px solid var(--orange);
@@ -70,7 +70,7 @@
   }
   .audio-btn:hover { background: var(--orange); color: #fff; }
 
-  /* â”€â”€ PROGRESS BAR â”€â”€ */
+  /* ── PROGRESS BAR ── */
   .progress-bar-wrap {
     background: var(--darker);
     height: 4px;
@@ -85,7 +85,7 @@
     width: 0%;
   }
 
-  /* â”€â”€ MAIN CONTENT â”€â”€ */
+  /* ── MAIN CONTENT ── */
   .main { max-width: 900px; margin: 0 auto; padding: 28px 16px 0; }
 
   .page-intro { text-align: center; margin-bottom: 28px; }
@@ -97,7 +97,7 @@
   }
   .page-intro p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 520px; margin: 0 auto; }
 
-  /* â”€â”€ BUSINESS NAME â”€â”€ */
+  /* ── BUSINESS NAME ── */
   .biz-name-wrap {
     background: var(--card);
     border: 1px solid var(--border);
@@ -191,7 +191,7 @@
     margin-top: 4px;
   }
 
-  /* â”€â”€ TAB NAV â”€â”€ */
+  /* ── TAB NAV ── */
   .tab-nav-wrap {
     position: sticky;
     top: 64px;
@@ -234,7 +234,7 @@
   }
   .tab-btn.saved .tab-check { display: inline; }
 
-  /* â”€â”€ TAB PANELS â”€â”€ */
+  /* ── TAB PANELS ── */
   .tab-panel { display: none; }
   .tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
@@ -247,7 +247,7 @@
   }
   .panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
 
-  /* â”€â”€ CARDS â”€â”€ */
+  /* ── CARDS ── */
   .card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -265,7 +265,7 @@
     margin-bottom: 14px;
   }
 
-  /* â”€â”€ IMAGE UPLOAD â”€â”€ */
+  /* ── IMAGE UPLOAD ── */
   .img-upload-box {
     position: relative;
     border: 2px dashed var(--border);
@@ -331,7 +331,7 @@
     font-weight: 500;
   }
 
-  /* â”€â”€ BEFORE/AFTER GRID â”€â”€ */
+  /* ── BEFORE/AFTER GRID ── */
   .ba-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -339,7 +339,7 @@
     margin-bottom: 14px;
   }
 
-  /* â”€â”€ 2x2 GRID â”€â”€ */
+  /* ── 2x2 GRID ── */
   .grid-2x2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -347,7 +347,7 @@
     margin-bottom: 14px;
   }
 
-  /* â”€â”€ TEXTAREA â”€â”€ */
+  /* ── TEXTAREA ── */
   .field-label {
     font-size: 13px;
     font-weight: 600;
@@ -380,7 +380,7 @@
   }
   .char-counter.good { color: var(--green); }
 
-  /* â”€â”€ TEXT INPUTS â”€â”€ */
+  /* ── TEXT INPUTS ── */
   input[type="text"] {
     width: 100%;
     background: var(--darker);
@@ -397,7 +397,7 @@
   input[type="text"]:focus { border-color: var(--orange); }
   input[type="text"]::placeholder { color: #475569; }
 
-  /* â”€â”€ ADD BUTTON â”€â”€ */
+  /* ── ADD BUTTON ── */
   .add-btn {
     background: rgba(230,126,34,0.1);
     border: 1px dashed var(--orange);
@@ -414,7 +414,7 @@
   .add-btn:hover { background: rgba(230,126,34,0.2); }
   .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* â”€â”€ SAVE BUTTON â”€â”€ */
+  /* ── SAVE BUTTON ── */
   .save-btn {
     background: var(--orange);
     color: #fff;
@@ -431,7 +431,7 @@
   }
   .save-btn:hover { background: var(--orange-light); transform: translateY(-1px); }
 
-  /* â”€â”€ SUCCESS TOAST â”€â”€ */
+  /* ── SUCCESS TOAST ── */
   .toast {
     position: fixed;
     top: 40%;
@@ -457,7 +457,7 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* â”€â”€ CONFETTI CANVAS â”€â”€ */
+  /* ── CONFETTI CANVAS ── */
   #confetti-canvas {
     position: fixed;
     top: 0; left: 0;
@@ -466,7 +466,7 @@
     z-index: 999;
   }
 
-  /* â”€â”€ NAV BUTTONS â”€â”€ */
+  /* ── NAV BUTTONS ── */
   .tab-nav-buttons {
     display: flex;
     align-items: center;
@@ -489,7 +489,7 @@
   .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
   .tab-progress-label { font-size: 13px; color: var(--muted); }
 
-  /* â”€â”€ LOGO EXPLANATION CARD â”€â”€ */
+  /* ── LOGO EXPLANATION CARD ── */
   .logo-explain {
     background: linear-gradient(135deg, #0f1a2e, #1a2540);
     border: 1px solid var(--orange);
@@ -501,11 +501,11 @@
   .logo-explain p { color: var(--text); font-size: 14px; line-height: 1.65; margin-bottom: 10px; }
   .logo-explain .format-hint { font-size: 12px; color: var(--muted); font-style: italic; }
 
-  /* â”€â”€ TEAM CARD â”€â”€ */
+  /* ── TEAM CARD ── */
   .team-card { display: grid; grid-template-columns: 100px 1fr; gap: 16px; align-items: start; }
   @media(max-width: 500px) { .team-card { grid-template-columns: 1fr; } }
 
-  /* â”€â”€ STICKY SUBMIT BAR â”€â”€ */
+  /* ── STICKY SUBMIT BAR ── */
   .submit-bar {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -541,7 +541,7 @@
   }
   .submit-btn.active:hover { background: var(--orange-light); }
 
-  /* â”€â”€ SUBMIT MODAL â”€â”€ */
+  /* ── SUBMIT MODAL ── */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -613,7 +613,7 @@
   }
   .modal-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* â”€â”€ UPLOAD PROGRESS â”€â”€ */
+  /* ── UPLOAD PROGRESS ── */
   .upload-status {
     margin-top: 12px;
     font-size: 13px;
@@ -654,7 +654,7 @@
         <span class="logo-sub">Kansas Prairie Webworks</span>
       </div>
     </div>
-    <button class="audio-btn" onclick="playWelcome()" id="audioBtn">ðŸŽ™ Welcome</button>
+    <button class="audio-btn" onclick="playWelcome()" id="audioBtn">🎙 Welcome</button>
   </div>
 </header>
 
@@ -667,7 +667,7 @@
 <div class="main">
   <div class="page-intro">
     <h1>Help us tell your story right.</h1>
-    <p>The more detail you give us, the better everything we create sounds like you â€” not a template.</p>
+    <p>The more detail you give us, the better everything we create sounds like you — not a template.</p>
   </div>
 
   <!-- BUSINESS NAME + EMAIL VERIFICATION -->
@@ -676,7 +676,7 @@
     <input type="text" id="businessName" placeholder="e.g. Mike's Services LLC" required oninput="saveBizName()" onkeydown="if(event.key==='Enter')loadPortal()">
     <label for="clientEmail" style="margin-top:14px">YOUR BUSINESS EMAIL <span style="color:var(--red)">*</span></label>
     <input type="email" id="clientEmail" placeholder="The email you used when you registered with KPW" required oninput="saveClientEmail()" onkeydown="if(event.key==='Enter')loadPortal()">
-    <button class="load-portal-btn" id="loadPortalBtn" onclick="loadPortal()">Load Portal â†’</button>
+    <button class="load-portal-btn" id="loadPortalBtn" onclick="loadPortal()">Load Portal →</button>
   </div>
 
   <div class="verify-error-card" id="verifyErrorCard">
@@ -691,93 +691,93 @@
   <!-- TAB NAV -->
   <div class="tab-nav-wrap">
     <nav class="tab-nav" id="tabNav">
-      <button class="tab-btn active" onclick="switchTab(0)" data-tab="0">ðŸ“¸ Project<span class="tab-check">âœ“</span></button>
-      <button class="tab-btn" onclick="switchTab(1)" data-tab="1">â†”ï¸ Before &amp; After<span class="tab-check">âœ“</span></button>
-      <button class="tab-btn" onclick="switchTab(2)" data-tab="2">ðŸ† Full Job<span class="tab-check">âœ“</span></button>
-      <button class="tab-btn" onclick="switchTab(3)" data-tab="3">ðŸ‘¥ Team<span class="tab-check">âœ“</span></button>
-      <button class="tab-btn" onclick="switchTab(4)" data-tab="4">ðŸ‘¤ Owner<span class="tab-check">âœ“</span></button>
-      <button class="tab-btn" onclick="switchTab(5)" data-tab="5">ðŸŽ¨ Logo<span class="tab-check">âœ“</span></button>
-      <button class="tab-btn" onclick="switchTab(6)" data-tab="6">ðŸ“‹ More<span class="tab-check">âœ“</span></button>
+      <button class="tab-btn active" onclick="switchTab(0)" data-tab="0">📸 Project<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(1)" data-tab="1">↔️ Before &amp; After<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(2)" data-tab="2">🏆 Full Job<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(3)" data-tab="3">👥 Team<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(4)" data-tab="4">👤 Owner<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(5)" data-tab="5">🎨 Logo<span class="tab-check">✓</span></button>
+      <button class="tab-btn" onclick="switchTab(6)" data-tab="6">📋 More<span class="tab-check">✓</span></button>
     </nav>
   </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â• TAB 0: PROJECT â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════ TAB 0: PROJECT ═══════════ -->
   <div class="tab-panel active" id="tab-0">
     <div style="margin-top:20px">
-      <div class="panel-title">ðŸ“¸ Project Photos</div>
+      <div class="panel-title">📸 Project Photos</div>
       <div class="panel-sub">Share up to 5 individual job photos with your own description of what happened.</div>
       <div id="singles-container"></div>
       <button class="add-btn" id="add-single-btn" onclick="addSingle()">+ Add Another Project</button>
       <button class="save-btn" onclick="saveTab(0)">Save Project Photos</button>
       <div class="tab-nav-buttons">
-        <button class="nav-btn" disabled>â† Previous</button>
+        <button class="nav-btn" disabled>← Previous</button>
         <span class="tab-progress-label">Tab 1 of 7</span>
-        <button class="nav-btn" onclick="switchTab(1)">Next â†’</button>
+        <button class="nav-btn" onclick="switchTab(1)">Next →</button>
       </div>
     </div>
   </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â• TAB 1: BEFORE & AFTER â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════ TAB 1: BEFORE & AFTER ═══════════ -->
   <div class="tab-panel" id="tab-1">
     <div style="margin-top:20px">
-      <div class="panel-title">â†”ï¸ Before &amp; After</div>
+      <div class="panel-title">↔️ Before &amp; After</div>
       <div class="panel-sub">Show the transformation. Side-by-side before and after photos with the story of what you fixed.</div>
       <div id="ba-container"></div>
       <button class="add-btn" id="add-ba-btn" onclick="addBA()">+ Add Another Set</button>
       <button class="save-btn" onclick="saveTab(1)">Save Before &amp; After</button>
       <div class="tab-nav-buttons">
-        <button class="nav-btn" onclick="switchTab(0)">â† Previous</button>
+        <button class="nav-btn" onclick="switchTab(0)">← Previous</button>
         <span class="tab-progress-label">Tab 2 of 7</span>
-        <button class="nav-btn" onclick="switchTab(2)">Next â†’</button>
+        <button class="nav-btn" onclick="switchTab(2)">Next →</button>
       </div>
     </div>
   </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â• TAB 2: FULL JOB â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════ TAB 2: FULL JOB ═══════════ -->
   <div class="tab-panel" id="tab-2">
     <div style="margin-top:20px">
-      <div class="panel-title">ðŸ† Complete Job Documentation</div>
-      <div class="panel-sub">Walk us through a full job from start to finish â€” before, during, and after.</div>
+      <div class="panel-title">🏆 Complete Job Documentation</div>
+      <div class="panel-sub">Walk us through a full job from start to finish — before, during, and after.</div>
       <div id="complete-container"></div>
       <button class="add-btn" id="add-complete-btn" onclick="addComplete()">+ Add Another Job</button>
       <button class="save-btn" onclick="saveTab(2)">Save Full Jobs</button>
       <div class="tab-nav-buttons">
-        <button class="nav-btn" onclick="switchTab(1)">â† Previous</button>
+        <button class="nav-btn" onclick="switchTab(1)">← Previous</button>
         <span class="tab-progress-label">Tab 3 of 7</span>
-        <button class="nav-btn" onclick="switchTab(3)">Next â†’</button>
+        <button class="nav-btn" onclick="switchTab(3)">Next →</button>
       </div>
     </div>
   </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â• TAB 3: TEAM â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════ TAB 3: TEAM ═══════════ -->
   <div class="tab-panel" id="tab-3">
     <div style="margin-top:20px">
-      <div class="panel-title">ðŸ‘¥ Your Team</div>
-      <div class="panel-sub">Faces build trust. Add up to 10 staff members â€” even a one-liner about what they're great at helps.</div>
+      <div class="panel-title">👥 Your Team</div>
+      <div class="panel-sub">Faces build trust. Add up to 10 staff members — even a one-liner about what they're great at helps.</div>
       <div id="team-container"></div>
       <button class="add-btn" id="add-team-btn" onclick="addTeam()">+ Add Team Member</button>
       <button class="save-btn" onclick="saveTab(3)">Save Team</button>
       <div class="tab-nav-buttons">
-        <button class="nav-btn" onclick="switchTab(2)">â† Previous</button>
+        <button class="nav-btn" onclick="switchTab(2)">← Previous</button>
         <span class="tab-progress-label">Tab 4 of 7</span>
-        <button class="nav-btn" onclick="switchTab(4)">Next â†’</button>
+        <button class="nav-btn" onclick="switchTab(4)">Next →</button>
       </div>
     </div>
   </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â• TAB 4: OWNER â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════ TAB 4: OWNER ═══════════ -->
   <div class="tab-panel" id="tab-4">
     <div style="margin-top:20px">
-      <div class="panel-title">ðŸ‘¤ About the Owner</div>
+      <div class="panel-title">👤 About the Owner</div>
       <div class="panel-sub">Customers want to know who they're hiring. Your story matters more than you think.</div>
       <div class="card">
         <div class="card-num">Owner Photo</div>
         <div class="img-upload-box" id="owner-photo-box" style="max-width:180px">
           <div class="img-upload-inner">
-            <div class="img-upload-icon">ðŸ“·</div>
+            <div class="img-upload-icon">📷</div>
             <div class="img-upload-label">Upload your photo</div>
           </div>
-          <button class="img-delete-btn" onclick="deleteImage('owner-photo-box', event)">Ã—</button>
+          <button class="img-delete-btn" onclick="deleteImage('owner-photo-box', event)">×</button>
           <input type="file" accept="image/*" onchange="previewImage(this, 'owner-photo-box')">
         </div>
         <div style="margin-top:16px">
@@ -793,64 +793,64 @@
       </div>
       <button class="save-btn" onclick="saveTab(4)">Save Owner Info</button>
       <div class="tab-nav-buttons">
-        <button class="nav-btn" onclick="switchTab(3)">â† Previous</button>
+        <button class="nav-btn" onclick="switchTab(3)">← Previous</button>
         <span class="tab-progress-label">Tab 5 of 7</span>
-        <button class="nav-btn" onclick="switchTab(5)">Next â†’</button>
+        <button class="nav-btn" onclick="switchTab(5)">Next →</button>
       </div>
     </div>
   </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â• TAB 5: LOGO â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════ TAB 5: LOGO ═══════════ -->
   <div class="tab-panel" id="tab-5">
     <div style="margin-top:20px">
-      <div class="panel-title">ðŸŽ¨ Your Logo</div>
+      <div class="panel-title">🎨 Your Logo</div>
       <div class="panel-sub">Your logo goes at the bottom of every blog post we write for you.</div>
       <div class="card">
         <div class="card-num">Logo File</div>
         <div class="img-upload-box" id="logo-box" style="max-width:260px">
           <div class="img-upload-inner">
-            <div class="img-upload-icon">ðŸ–¼ï¸</div>
+            <div class="img-upload-icon">🖼️</div>
             <div class="img-upload-label">Upload your logo<br><small>PNG, JPG accepted</small></div>
           </div>
-          <button class="img-delete-btn" onclick="deleteImage('logo-box', event)">Ã—</button>
+          <button class="img-delete-btn" onclick="deleteImage('logo-box', event)">×</button>
           <input type="file" accept="image/*" onchange="previewImage(this, 'logo-box')">
         </div>
       </div>
       <div class="logo-explain">
         <h3>How we use your logo</h3>
-        <p>Your logo appears at the bottom of every blog post we write for you â€” your digital signature on every piece of content. We also use it on your Google Business Profile and Facebook to keep your brand consistent everywhere customers find you.</p>
+        <p>Your logo appears at the bottom of every blog post we write for you — your digital signature on every piece of content. We also use it on your Google Business Profile and Facebook to keep your brand consistent everywhere customers find you.</p>
         <p>No logo file? A clear photo of your truck door, business card, or sign works great too.</p>
         <div class="format-hint">PNG with transparent background is best. JPG works fine too.</div>
       </div>
       <button class="save-btn" onclick="saveTab(5)">Save Logo</button>
       <div class="tab-nav-buttons">
-        <button class="nav-btn" onclick="switchTab(4)">â† Previous</button>
+        <button class="nav-btn" onclick="switchTab(4)">← Previous</button>
         <span class="tab-progress-label">Tab 6 of 7</span>
-        <button class="nav-btn" onclick="switchTab(6)">Next â†’</button>
+        <button class="nav-btn" onclick="switchTab(6)">Next →</button>
       </div>
     </div>
   </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â• TAB 6: MORE â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ═══════════ TAB 6: MORE ═══════════ -->
   <div class="tab-panel" id="tab-6">
     <div style="margin-top:20px">
-      <div class="panel-title">ðŸ“‹ More (Optional)</div>
-      <div class="panel-sub">Business cards, truck photos, signage â€” anything else that helps us represent you.</div>
+      <div class="panel-title">📋 More (Optional)</div>
+      <div class="panel-sub">Business cards, truck photos, signage — anything else that helps us represent you.</div>
 
       <div class="card">
         <div class="card-num">Business Card</div>
         <div class="ba-grid">
           <div>
             <div class="img-upload-box" id="bizcard-front-box">
-              <div class="img-upload-inner"><div class="img-upload-icon">ðŸ’³</div><div class="img-upload-label">Front</div></div>
-              <button class="img-delete-btn" onclick="deleteImage('bizcard-front-box', event)">Ã—</button>
+              <div class="img-upload-inner"><div class="img-upload-icon">💳</div><div class="img-upload-label">Front</div></div>
+              <button class="img-delete-btn" onclick="deleteImage('bizcard-front-box', event)">×</button>
               <input type="file" accept="image/*" onchange="previewImage(this, 'bizcard-front-box')">
             </div>
           </div>
           <div>
             <div class="img-upload-box" id="bizcard-back-box">
-              <div class="img-upload-inner"><div class="img-upload-icon">ðŸ’³</div><div class="img-upload-label">Back</div></div>
-              <button class="img-delete-btn" onclick="deleteImage('bizcard-back-box', event)">Ã—</button>
+              <div class="img-upload-inner"><div class="img-upload-icon">💳</div><div class="img-upload-label">Back</div></div>
+              <button class="img-delete-btn" onclick="deleteImage('bizcard-back-box', event)">×</button>
               <input type="file" accept="image/*" onchange="previewImage(this, 'bizcard-back-box')">
             </div>
           </div>
@@ -866,8 +866,8 @@
       <div class="card">
         <div class="card-num">Signage / Storefront</div>
         <div class="img-upload-box" id="sign-box">
-          <div class="img-upload-inner"><div class="img-upload-icon">ðŸ¢</div><div class="img-upload-label">Sign or storefront photo</div></div>
-          <button class="img-delete-btn" onclick="deleteImage('sign-box', event)">Ã—</button>
+          <div class="img-upload-inner"><div class="img-upload-icon">🏢</div><div class="img-upload-label">Sign or storefront photo</div></div>
+          <button class="img-delete-btn" onclick="deleteImage('sign-box', event)">×</button>
           <input type="file" accept="image/*" onchange="previewImage(this, 'sign-box')">
         </div>
       </div>
@@ -881,9 +881,9 @@
 
       <button class="save-btn" onclick="saveTab(6)">Save Extras</button>
       <div class="tab-nav-buttons">
-        <button class="nav-btn" onclick="switchTab(5)">â† Previous</button>
+        <button class="nav-btn" onclick="switchTab(5)">← Previous</button>
         <span class="tab-progress-label">Tab 7 of 7</span>
-        <button class="nav-btn" disabled>Next â†’</button>
+        <button class="nav-btn" disabled>Next →</button>
       </div>
     </div>
   </div>
@@ -893,7 +893,7 @@
 <!-- STICKY SUBMIT BAR -->
 <div class="submit-bar" id="submitBar" style="display:none">
   <div class="submit-bar-text"><strong id="complete-count">0 of 7</strong> sections complete</div>
-  <button class="submit-btn" id="submitBtn" onclick="openSubmitModal()">Send Everything to KPW â†’</button>
+  <button class="submit-btn" id="submitBtn" onclick="openSubmitModal()">Send Everything to KPW →</button>
 </div>
 
 <!-- SUBMIT MODAL -->
@@ -914,12 +914,12 @@
 <audio id="welcomeAudio" preload="none"></audio>
 
 <script>
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // STATE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 const CLOUDINARY_CLOUD = 'dxqhuoxzn';
 const CLOUDINARY_PRESET = 'kpw-unsigned';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYfSjGs6HHSDgpRnTZIf_t2xDzIrmdUK3Py566qFasTZo7UjZDGJ5HYk0lyA8Ze_ID/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDUM_bxklSvTzLhIWxqSbOzBtCExCpqIIM0fWnskcwP4PN3ezeWVHm9Wf9Q140BJw/exec';
 
 let currentTab = 0;
 const savedTabs = new Set();
@@ -939,16 +939,16 @@ const MAX_TEAM = 10;
 const MAX_TRUCKS = 5;
 
 const SUCCESS_MSGS = [
-  "Perfect â€” going straight into your content engine.",
+  "Perfect — going straight into your content engine.",
   "That's gold. Real job photos like that rank.",
   "Nice work. Your content just got better.",
   "Saved. Kaleb's system just got smarter about your business.",
   "That description alone will improve your Google ranking."
 ];
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // INIT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   // Restore business name and email
   const saved = localStorage.getItem('kpw_biz_name');
@@ -974,9 +974,9 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSubmitBar();
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // TAB NAVIGATION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function switchTab(idx) {
   document.querySelectorAll('.tab-panel').forEach((p, i) => {
     p.classList.toggle('active', i === idx);
@@ -991,9 +991,9 @@ function switchTab(idx) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // BUSINESS NAME
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function saveBizName() {
   localStorage.setItem('kpw_biz_name', document.getElementById('businessName').value);
 }
@@ -1010,7 +1010,7 @@ async function loadPortal() {
 
   const btn = document.getElementById('loadPortalBtn');
   btn.disabled = true;
-  btn.textContent = 'Checkingâ€¦';
+  btn.textContent = 'Checking…';
   document.getElementById('verifyErrorCard').style.display = 'none';
 
   try {
@@ -1030,7 +1030,7 @@ async function loadPortal() {
       document.getElementById('portalContent').style.display = 'block';
       document.getElementById('submitBar').style.display = 'flex';
       document.getElementById('verifyErrorCard').style.display = 'none';
-      btn.textContent = 'Portal Loaded âœ“';
+      btn.textContent = 'Portal Loaded ✓';
     } else if (data.reason === 'email') {
       document.getElementById('verifyErrorTitle').textContent = 'Email doesn\'t match.';
       document.getElementById('verifyErrorMsg').textContent = 'Business name found but email doesn\'t match. Please use the email you registered with.';
@@ -1040,7 +1040,7 @@ async function loadPortal() {
       document.getElementById('portalContent').style.display = 'none';
       document.getElementById('submitBar').style.display = 'none';
       btn.disabled = false;
-      btn.textContent = 'Load Portal â†’';
+      btn.textContent = 'Load Portal →';
     } else {
       document.getElementById('verifyErrorTitle').textContent = 'We don\'t have you in our system yet.';
       document.getElementById('verifyErrorMsg').textContent = 'To get started with Kansas Prairie Webworks, fill out our intake form first:';
@@ -1050,12 +1050,12 @@ async function loadPortal() {
       document.getElementById('portalContent').style.display = 'none';
       document.getElementById('submitBar').style.display = 'none';
       btn.disabled = false;
-      btn.textContent = 'Load Portal â†’';
+      btn.textContent = 'Load Portal →';
     }
   } catch (err) {
     alert('Could not reach Agency Brain. Check your connection and try again.');
     btn.disabled = false;
-    btn.textContent = 'Load Portal â†’';
+    btn.textContent = 'Load Portal →';
   }
 }
 
@@ -1064,9 +1064,9 @@ function getSlug() {
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // IMAGE HANDLING
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function previewImage(input, boxId) {
   const file = input.files[0];
   if (!file) return;
@@ -1103,9 +1103,9 @@ function deleteImage(boxId, e) {
   delete imageUrls[boxId];
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // DYNAMIC CARD BUILDERS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function addSingle() {
   if (singleCount >= MAX_SINGLES) return;
   const n = singleCount++;
@@ -1117,10 +1117,10 @@ function addSingle() {
     <div class="card-num">Project ${n + 1}</div>
     <div class="img-upload-box" id="${boxId}">
       <div class="img-upload-inner">
-        <div class="img-upload-icon">ðŸ“·</div>
+        <div class="img-upload-icon">📷</div>
         <div class="img-upload-label">Click to upload a job photo</div>
       </div>
-      <button class="img-delete-btn" onclick="deleteImage('${boxId}', event)">Ã—</button>
+      <button class="img-delete-btn" onclick="deleteImage('${boxId}', event)">×</button>
       <input type="file" accept="image/*" onchange="previewImage(this, '${boxId}')">
     </div>
     <div style="margin-top:12px">
@@ -1150,16 +1150,16 @@ function addBA() {
     <div class="ba-grid">
       <div>
         <div class="img-upload-box" id="${beforeId}">
-          <div class="img-upload-inner"><div class="img-upload-icon">ðŸ“·</div><div class="img-upload-label">Before</div></div>
-          <button class="img-delete-btn" onclick="deleteImage('${beforeId}', event)">Ã—</button>
+          <div class="img-upload-inner"><div class="img-upload-icon">📷</div><div class="img-upload-label">Before</div></div>
+          <button class="img-delete-btn" onclick="deleteImage('${beforeId}', event)">×</button>
           <input type="file" accept="image/*" onchange="previewImage(this, '${beforeId}')">
         </div>
         <div class="img-box-label">Before</div>
       </div>
       <div>
         <div class="img-upload-box" id="${afterId}">
-          <div class="img-upload-inner"><div class="img-upload-icon">ðŸ“·</div><div class="img-upload-label">After</div></div>
-          <button class="img-delete-btn" onclick="deleteImage('${afterId}', event)">Ã—</button>
+          <div class="img-upload-inner"><div class="img-upload-icon">📷</div><div class="img-upload-label">After</div></div>
+          <button class="img-delete-btn" onclick="deleteImage('${afterId}', event)">×</button>
           <input type="file" accept="image/*" onchange="previewImage(this, '${afterId}')">
         </div>
         <div class="img-box-label">After</div>
@@ -1179,15 +1179,15 @@ function addComplete() {
   if (completeCount >= MAX_COMPLETE) return;
   const n = completeCount++;
   const ids = [`cj-b4-${n}`, `cj-mid-${n}`, `cj-fin-${n}`, `cj-fin2-${n}`];
-  const labels = ['Before', 'The messy middle', 'Finished', 'Finished â€” different angle'];
+  const labels = ['Before', 'The messy middle', 'Finished', 'Finished — different angle'];
   const el = document.createElement('div');
   el.className = 'card';
   el.id = `complete-card-${n}`;
   const gridHtml = ids.map((id, i) => `
     <div>
       <div class="img-upload-box" id="${id}">
-        <div class="img-upload-inner"><div class="img-upload-icon">ðŸ“·</div><div class="img-upload-label">${labels[i]}</div></div>
-        <button class="img-delete-btn" onclick="deleteImage('${id}', event)">Ã—</button>
+        <div class="img-upload-inner"><div class="img-upload-icon">📷</div><div class="img-upload-label">${labels[i]}</div></div>
+        <button class="img-delete-btn" onclick="deleteImage('${id}', event)">×</button>
         <input type="file" accept="image/*" onchange="previewImage(this, '${id}')">
       </div>
       <div class="img-box-label">${labels[i]}</div>
@@ -1218,8 +1218,8 @@ function addTeam() {
     <div class="team-card">
       <div>
         <div class="img-upload-box" id="${photoId}">
-          <div class="img-upload-inner"><div class="img-upload-icon">ðŸ‘¤</div><div class="img-upload-label">Photo</div></div>
-          <button class="img-delete-btn" onclick="deleteImage('${photoId}', event)">Ã—</button>
+          <div class="img-upload-inner"><div class="img-upload-icon">👤</div><div class="img-upload-label">Photo</div></div>
+          <button class="img-delete-btn" onclick="deleteImage('${photoId}', event)">×</button>
           <input type="file" accept="image/*" onchange="previewImage(this, '${photoId}')">
         </div>
       </div>
@@ -1246,8 +1246,8 @@ function addTruck() {
   el.id = `truck-card-${n}`;
   el.innerHTML = `
     <div class="img-upload-box" id="${boxId}">
-      <div class="img-upload-inner"><div class="img-upload-icon">ðŸš›</div><div class="img-upload-label">Truck or equipment photo</div></div>
-      <button class="img-delete-btn" onclick="deleteImage('${boxId}', event)">Ã—</button>
+      <div class="img-upload-inner"><div class="img-upload-icon">🚛</div><div class="img-upload-label">Truck or equipment photo</div></div>
+      <button class="img-delete-btn" onclick="deleteImage('${boxId}', event)">×</button>
       <input type="file" accept="image/*" onchange="previewImage(this, '${boxId}')">
     </div>
   `;
@@ -1255,9 +1255,9 @@ function addTruck() {
   if (truckCount >= MAX_TRUCKS) document.getElementById('add-truck-btn').disabled = true;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // CHAR COUNTER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function updateCounter(el) {
   const len = el.value.length;
   const counterId = el.id + '-counter';
@@ -1267,9 +1267,9 @@ function updateCounter(el) {
   counter.classList.toggle('good', len >= 80);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // SAVE TAB
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function saveTab(idx) {
   markTabSaved(idx);
   celebrate();
@@ -1285,9 +1285,9 @@ function markTabSaved(idx) {
   localStorage.setItem('kpw_saved_tabs', JSON.stringify([...savedTabs]));
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // PROGRESS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function updateProgress() {
   const pct = (savedTabs.size / 7) * 100;
   document.getElementById('progressFill').style.width = pct + '%';
@@ -1303,9 +1303,9 @@ function updateSubmitBar() {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // CELEBRATE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function celebrate() {
   launchConfetti();
   playChime();
@@ -1385,27 +1385,27 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // AUDIO WELCOME
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function playWelcome() {
   const audio = document.getElementById('welcomeAudio');
   if (audio.paused) {
     audio.play().catch(() => {});
-    document.getElementById('audioBtn').textContent = 'â¹ Stop';
+    document.getElementById('audioBtn').textContent = '⏹ Stop';
   } else {
     audio.pause();
     audio.currentTime = 0;
-    document.getElementById('audioBtn').textContent = 'ðŸŽ™ Welcome';
+    document.getElementById('audioBtn').textContent = '🎙 Welcome';
   }
 }
 document.getElementById('welcomeAudio').addEventListener('ended', () => {
-  document.getElementById('audioBtn').textContent = 'ðŸŽ™ Welcome';
+  document.getElementById('audioBtn').textContent = '🎙 Welcome';
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // SUBMIT MODAL
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 function openSubmitModal() {
   if (savedTabs.size === 0) return;
   buildSummary();
@@ -1457,8 +1457,8 @@ function buildSummary() {
 
   let badge, badgeClass;
   if (totalWords < 50) { badge = 'Add more detail for better results'; badgeClass = 'low'; }
-  else if (totalWords < 150) { badge = 'Good â€” Claude will work with this'; badgeClass = 'mid'; }
-  else { badge = 'Excellent â€” your content will sound like you'; badgeClass = 'high'; }
+  else if (totalWords < 150) { badge = 'Good — Claude will work with this'; badgeClass = 'mid'; }
+  else { badge = 'Excellent — your content will sound like you'; badgeClass = 'high'; }
 
   const html = `
     <div class="summary-row"><span class="label">Business</span><span class="value">${biz}</span></div>
@@ -1472,9 +1472,9 @@ function buildSummary() {
   document.getElementById('summary-content').innerHTML = html;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // UPLOAD TO CLOUDINARY
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 async function uploadToCloudinary(file, folder) {
   const formData = new FormData();
   formData.append('file', file);
@@ -1495,7 +1495,7 @@ function addUploadRow(name) {
   const row = document.createElement('div');
   row.className = 'upload-file-row';
   row.id = 'uprow-' + name.replace(/[^a-z0-9]/gi, '_');
-  row.innerHTML = `<span class="upload-file-name">${name}</span><span class="upload-file-status uploading" id="upstat-${name.replace(/[^a-z0-9]/gi,'_')}">Uploadingâ€¦</span>`;
+  row.innerHTML = `<span class="upload-file-name">${name}</span><span class="upload-file-status uploading" id="upstat-${name.replace(/[^a-z0-9]/gi,'_')}">Uploading…</span>`;
   statusEl.appendChild(row);
   return name.replace(/[^a-z0-9]/gi, '_');
 }
@@ -1507,16 +1507,16 @@ function setUploadStatus(key, status, ok) {
   el.className = 'upload-file-status ' + (ok ? 'done' : 'error');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 // SUBMIT ALL
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════
 async function submitAll() {
   const biz = document.getElementById('businessName').value.trim();
   if (!biz) { alert('Please enter your business name first.'); return; }
 
   const btn = document.getElementById('confirmBtn');
   btn.disabled = true;
-  btn.textContent = 'Uploadingâ€¦';
+  btn.textContent = 'Uploading…';
 
   const slug = getSlug();
   const base = `kpw-clients/${slug}`;
@@ -1527,10 +1527,10 @@ async function submitAll() {
     try {
       const url = await uploadToCloudinary(imageFiles[boxId], `${base}/${folder}`);
       imageUrls[boxId] = url;
-      setUploadStatus(key, 'âœ“ Done', true);
+      setUploadStatus(key, '✓ Done', true);
       return url;
     } catch(e) {
-      setUploadStatus(key, 'âœ— Failed', false);
+      setUploadStatus(key, '✗ Failed', false);
       return null;
     }
   };
@@ -1613,7 +1613,7 @@ async function submitAll() {
   };
 
   // POST to Apps Script
-  btn.textContent = 'Sending to KPWâ€¦';
+  btn.textContent = 'Sending to KPW…';
   try {
     await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -1621,7 +1621,7 @@ async function submitAll() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    btn.textContent = 'âœ“ Sent!';
+    btn.textContent = '✓ Sent!';
     // Clear saved state
     localStorage.removeItem('kpw_saved_tabs');
     setTimeout(() => {
@@ -1631,11 +1631,9 @@ async function submitAll() {
   } catch(e) {
     btn.disabled = false;
     btn.textContent = 'Retry Send';
-    showToast('Send failed â€” check your connection and try again.');
+    showToast('Send failed — check your connection and try again.');
   }
 }
 </script>
 </body>
 </html>
-
-
