@@ -784,7 +784,8 @@
           <label class="field-label" for="owner-name">Your Name</label>
           <input type="text" id="owner-name" placeholder="e.g. Mike Johnson">
           <label class="field-label" for="owner-story">Tell us about yourself and your business</label>
-          <textarea id="owner-story" rows="5" placeholder="I started with one backhoe and a phone number on a sign 20 years ago..." oninput="updateCounter(this)"></textarea>
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">💡 Tip: Be specific — job type, location, equipment, and outcome helps our system match this photo to the right content.</div>
+          <textarea id="owner-story" rows="5" placeholder="Tell us your story. How did you get into this work? How long have you been doing it? What do you do differently than everyone else in your area?" oninput="updateCounter(this)"></textarea>
           <div class="char-counter" id="owner-story-counter">0 characters</div>
           <label class="field-label" for="owner-want" style="margin-top:14px">What do you want customers to know?</label>
           <textarea id="owner-want" rows="4" placeholder="I answer my own phone. You'll never get a call center." oninput="updateCounter(this)"></textarea>
@@ -814,6 +815,12 @@
           </div>
           <button class="img-delete-btn" onclick="deleteImage('logo-box', event)">×</button>
           <input type="file" accept="image/*" onchange="previewImage(this, 'logo-box')">
+        </div>
+        <div style="margin-top:14px">
+          <label class="field-label" for="logo-notes">Logo notes</label>
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">💡 Tip: Be specific — job type, location, equipment, and outcome helps our system match this photo to the right content.</div>
+          <textarea id="logo-notes" rows="3" placeholder="Upload your best logo file. PNG with transparent background works best." oninput="updateCounter(this)"></textarea>
+          <div class="char-counter" id="logo-notes-counter">0 characters</div>
         </div>
       </div>
       <div class="logo-explain">
@@ -875,7 +882,8 @@
       <div class="card">
         <div class="card-num">Anything Else?</div>
         <label class="field-label" for="extra-notes">Anything we should know about your business, customers, or work?</label>
-        <textarea id="extra-notes" rows="5" placeholder="We do a lot of emergency calls on weekends. Most of our customers are farmers on 40+ acres..." oninput="updateCounter(this)"></textarea>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">💡 Tip: Be specific — job type, location, equipment, and outcome helps our system match this photo to the right content.</div>
+        <textarea id="extra-notes" rows="5" placeholder="Anything else that represents your business — equipment, vehicles, signage, business cards, community work, certifications. If it tells your story, upload it and describe it." oninput="updateCounter(this)"></textarea>
         <div class="char-counter" id="extra-notes-counter">0 characters</div>
       </div>
 
@@ -968,7 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
   addTruck();
 
   // Set audio src
-  document.getElementById('welcomeAudio').src = 'upload_welcome.mp3';
+  document.getElementById('welcomeAudio').src = 'upload_welcome.ogg';
 
   updateProgress();
   updateSubmitBar();
@@ -1125,8 +1133,9 @@ function addSingle() {
     </div>
     <div style="margin-top:12px">
       <label class="field-label">Tell us about this job in your own words</label>
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">💡 Tip: Be specific — job type, location, equipment, and outcome helps our system match this photo to the right content.</div>
       <textarea id="single-desc-${n}" rows="4"
-        placeholder="We got a call from a family who hadn't had their tank pumped in 15 years..."
+        placeholder="Describe what's happening in this photo. Include the type of job, city or county, any equipment visible, what the challenge was, and what you did. Example: 'Residential job on the east side of town, tight access, used a mini excavator, customer had waited two years to get this done.'"
         oninput="updateCounter(this)"></textarea>
       <div class="char-counter" id="single-desc-${n}-counter">0 characters</div>
     </div>
@@ -1166,8 +1175,9 @@ function addBA() {
       </div>
     </div>
     <label class="field-label">What was the problem and what did you fix?</label>
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">💡 Tip: Be specific — job type, location, equipment, and outcome helps our system match this photo to the right content.</div>
     <textarea id="ba-desc-${n}" rows="4"
-      placeholder="The drain field had completely failed. Standing water in the yard..."
+      placeholder="Describe what changed. Include what the problem was, what you did, how long it took, and what city or county. Example: 'Overgrown lot, cleared and graded in one day — customer couldn't believe it was the same property.'"
       oninput="updateCounter(this)"></textarea>
     <div class="char-counter" id="ba-desc-${n}-counter">0 characters</div>
   `;
@@ -1197,8 +1207,9 @@ function addComplete() {
     <div class="card-num">Complete Job ${n + 1}</div>
     <div class="grid-2x2">${gridHtml}</div>
     <label class="field-label">Walk us through this job start to finish</label>
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">💡 Tip: Be specific — job type, location, equipment, and outcome helps our system match this photo to the right content.</div>
     <textarea id="cj-desc-${n}" rows="5"
-      placeholder="This was a full install on 40 acres. Clay soil, caliche at 2 feet, took an extra day..."
+      placeholder="Walk us through the whole job. What did you show up to? What equipment did you use? What was the hardest part? What did the customer say when it was done?"
       oninput="updateCounter(this)"></textarea>
     <div class="char-counter" id="cj-desc-${n}-counter">0 characters</div>
   `;
@@ -1230,6 +1241,10 @@ function addTeam() {
         <input type="text" id="team-role-${n}" placeholder="e.g. Equipment Operator">
         <label class="field-label">One thing they're great at</label>
         <input type="text" id="team-strength-${n}" placeholder="Been operating the excavator since he was 16">
+        <label class="field-label" style="margin-top:10px">Describe this photo</label>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">💡 Tip: Be specific — job type, location, equipment, and outcome helps our system match this photo to the right content.</div>
+        <textarea id="team-desc-${n}" rows="3" placeholder="Who is in this photo? First names are fine. What were they doing that day and what job was this?" oninput="updateCounter(this)"></textarea>
+        <div class="char-counter" id="team-desc-${n}-counter">0 characters</div>
       </div>
     </div>
   `;
