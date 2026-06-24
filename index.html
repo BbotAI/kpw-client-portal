@@ -541,6 +541,23 @@
   }
   .submit-btn.active:hover { background: var(--orange-light); }
 
+  /* ── SERVICE SELECTOR ── */
+  .service-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: left;
+    width: 100%;
+  }
+  .service-card:hover { border-color: var(--orange); color: #fff; }
+  .service-card.selected { border-color: var(--orange); background: rgba(230,126,34,0.1); color: #fff; }
+
   /* ── SUBMIT MODAL ── */
   .modal-overlay {
     position: fixed;
@@ -686,7 +703,25 @@
     <div class="verify-error-contact" id="verifyErrorContact">Already a client? Call or text Kaleb: 785-577-7695</div>
   </div>
 
+  <!-- SERVICE SELECTOR -->
+  <div id="service-selector" style="display:none">
+    <div style="margin-top:20px">
+      <div class="panel-title">What service are these photos for?</div>
+      <div class="panel-sub">Pick the service before uploading so we match your photos to the right content.</div>
+      <div id="service-cards" style="display:flex;flex-direction:column;gap:12px;margin:20px 0;"></div>
+      <button class="save-btn" id="start-upload-btn" onclick="startUploading()" disabled style="opacity:0.4;cursor:not-allowed;">Start Uploading →</button>
+    </div>
+  </div>
+
   <div id="portalContent" style="display:none">
+
+  <!-- SERVICE BADGE -->
+  <div id="service-badge-bar" style="display:none;background:rgba(230,126,34,0.1);border:1px solid var(--orange);border-radius:8px;padding:10px 16px;margin-top:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:14px;">Uploading for: <strong id="service-badge-text" style="color:var(--orange);"></strong></span>
+      <button onclick="changeService()" style="background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Change Service</button>
+    </div>
+  </div>
 
   <!-- TAB NAV -->
   <div class="tab-nav-wrap">
@@ -927,7 +962,7 @@
 // ═══════════════════════════════════════════════════════════
 const CLOUDINARY_CLOUD = 'dxqhuoxzn';
 const CLOUDINARY_PRESET = 'kpw-unsigned';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxh6k5meEZj7h6eyD-aI0CTVETHdsrypOGcKv38ZqWVP-Wj5DGIcYCmQYAy8xLyPgdt/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby4D3lgodJ-u8nhy2qEiAur2mc7dNnMpG671oS86E5KbBdk8wihPUDgUrl88gwi5YMS/exec';
 
 let currentTab = 0;
 const savedTabs = new Set();
@@ -939,6 +974,10 @@ let baCount = 0;
 let completeCount = 0;
 let teamCount = 0;
 let truckCount = 0;
+
+let verifiedClientId = '';
+let currentService   = '';
+let currentServiceName = '';
 
 const MAX_SINGLES = 5;
 const MAX_BA = 3;
@@ -1035,10 +1074,11 @@ async function loadPortal() {
     const data = await resp.json();
 
     if (data.verified) {
-      document.getElementById('portalContent').style.display = 'block';
-      document.getElementById('submitBar').style.display = 'flex';
+      verifiedClientId = data.clientId || '';
       document.getElementById('verifyErrorCard').style.display = 'none';
       btn.textContent = 'Portal Loaded ✓';
+      document.getElementById('service-selector').style.display = 'block';
+      loadServices();
     } else if (data.reason === 'email') {
       document.getElementById('verifyErrorTitle').textContent = 'Email doesn\'t match.';
       document.getElementById('verifyErrorMsg').textContent = 'Business name found but email doesn\'t match. Please use the email you registered with.';
@@ -1419,6 +1459,65 @@ document.getElementById('welcomeAudio').addEventListener('ended', () => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// SERVICE SELECTOR
+// ═══════════════════════════════════════════════════════════
+async function loadServices() {
+  const servicesEl = document.getElementById('service-cards');
+  servicesEl.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Loading your services…</div>';
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId));
+    const data = await resp.json();
+    const services = (data.services || []).filter(s => s.status !== 'Archived');
+    if (!services.length) {
+      servicesEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">No services found for your account. Contact KPW at 785-577-7695.</div>';
+      return;
+    }
+    servicesEl.innerHTML = '';
+    services.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'service-card';
+      card.textContent = s.serviceName;
+      card.onclick = () => selectService(s.serviceName);
+      servicesEl.appendChild(card);
+    });
+  } catch(err) {
+    servicesEl.innerHTML = '<div style="color:var(--red);padding:10px 0;">Could not load services. Check your connection and try again.</div>';
+  }
+}
+
+function slugifyService(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function selectService(name) {
+  currentServiceName = name;
+  currentService     = slugifyService(name);
+  document.querySelectorAll('.service-card').forEach(c => {
+    c.classList.toggle('selected', c.textContent.trim() === name);
+  });
+  const btn = document.getElementById('start-upload-btn');
+  btn.disabled         = false;
+  btn.style.opacity    = '1';
+  btn.style.cursor     = 'pointer';
+}
+
+function startUploading() {
+  if (!currentService) return;
+  document.getElementById('service-selector').style.display  = 'none';
+  document.getElementById('service-badge-bar').style.display = 'block';
+  document.getElementById('service-badge-text').textContent  = currentServiceName;
+  document.getElementById('portalContent').style.display     = 'block';
+  document.getElementById('submitBar').style.display         = 'flex';
+}
+
+function changeService() {
+  document.getElementById('portalContent').style.display     = 'none';
+  document.getElementById('submitBar').style.display         = 'none';
+  document.getElementById('service-badge-bar').style.display = 'none';
+  document.getElementById('service-selector').style.display  = 'block';
+}
+
+// ═══════════════════════════════════════════════════════════
 // SUBMIT MODAL
 // ═══════════════════════════════════════════════════════════
 function openSubmitModal() {
@@ -1566,7 +1665,7 @@ async function submitAll() {
   for (let i = 0; i < singleCount; i++) {
     const imgUrl = await upload(`single-img-${i}`, 'projects/single');
     const desc = document.getElementById(`single-desc-${i}`)?.value || '';
-    if (imgUrl || desc) payload.projects.single.push({ imageUrl: imgUrl || '', description: desc });
+    if (imgUrl || desc) payload.projects.single.push({ imageUrl: imgUrl || '', description: desc, service: currentService });
   }
 
   // Before/After
@@ -1574,7 +1673,7 @@ async function submitAll() {
     const bUrl = await upload(`ba-before-${i}`, 'projects/before-after');
     const aUrl = await upload(`ba-after-${i}`, 'projects/before-after');
     const desc = document.getElementById(`ba-desc-${i}`)?.value || '';
-    if (bUrl || aUrl || desc) payload.projects.beforeAfter.push({ beforeUrl: bUrl||'', afterUrl: aUrl||'', description: desc });
+    if (bUrl || aUrl || desc) payload.projects.beforeAfter.push({ beforeUrl: bUrl||'', afterUrl: aUrl||'', description: desc, service: currentService });
   }
 
   // Complete jobs
@@ -1585,7 +1684,7 @@ async function submitAll() {
       imgs.push(u || '');
     }
     const desc = document.getElementById(`cj-desc-${i}`)?.value || '';
-    if (imgs.some(Boolean) || desc) payload.projects.complete.push({ images: imgs, description: desc });
+    if (imgs.some(Boolean) || desc) payload.projects.complete.push({ images: imgs, description: desc, service: currentService });
   }
 
   // Team
@@ -1594,7 +1693,8 @@ async function submitAll() {
     const name = document.getElementById(`team-name-${i}`)?.value || '';
     const role = document.getElementById(`team-role-${i}`)?.value || '';
     const strength = document.getElementById(`team-strength-${i}`)?.value || '';
-    if (name || photoUrl) payload.team.push({ photoUrl: photoUrl||'', name, role, strength });
+    const description = document.getElementById(`team-desc-${i}`)?.value || '';
+    if (name || photoUrl) payload.team.push({ photoUrl: photoUrl||'', name, role, strength, description, service: currentService });
   }
 
   // Owner
@@ -1603,12 +1703,13 @@ async function submitAll() {
     photoUrl: ownerPhoto || '',
     name: document.getElementById('owner-name')?.value || '',
     story: document.getElementById('owner-story')?.value || '',
-    wantCustomersToKnow: document.getElementById('owner-want')?.value || ''
+    wantCustomersToKnow: document.getElementById('owner-want')?.value || '',
+    service: 'all'
   };
 
   // Logo
   const logoUrl = await upload('logo-box', 'logo');
-  payload.logo = { url: logoUrl || '' };
+  payload.logo = { url: logoUrl || '', service: 'all' };
 
   // Extra
   const extraImgs = [];
@@ -1624,29 +1725,35 @@ async function submitAll() {
   if (signUrl) extraImgs.push(signUrl);
   payload.extra = {
     images: extraImgs,
-    notes: document.getElementById('extra-notes')?.value || ''
+    notes: document.getElementById('extra-notes')?.value || '',
+    service: currentService
   };
 
   // POST to Apps Script
   btn.textContent = 'Sending to KPW…';
   try {
-    await fetch(APPS_SCRIPT_URL, {
+    const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
-    btn.textContent = '✓ Sent!';
-    // Clear saved state
-    localStorage.removeItem('kpw_saved_tabs');
-    setTimeout(() => {
-      closeModal();
-      showToast('Everything sent to KPW. Kaleb will be in touch!');
-    }, 1200);
+    const result = await resp.json();
+    if (result.success) {
+      btn.textContent = '✓ Sent!';
+      localStorage.removeItem('kpw_saved_tabs');
+      setTimeout(() => {
+        closeModal();
+        showToast('Everything sent to KPW. Kaleb will be in touch!');
+      }, 1200);
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Retry Send';
+      showToast('Something went wrong — please try again or contact KPW at 785-577-7695');
+    }
   } catch(e) {
     btn.disabled = false;
     btn.textContent = 'Retry Send';
-    showToast('Send failed — check your connection and try again.');
+    showToast('Send failed — check your connection. Call KPW: 785-577-7695');
   }
 }
 </script>
