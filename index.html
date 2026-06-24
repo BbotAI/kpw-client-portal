@@ -505,41 +505,23 @@
   .team-card { display: grid; grid-template-columns: 100px 1fr; gap: 16px; align-items: start; }
   @media(max-width: 500px) { .team-card { grid-template-columns: 1fr; } }
 
-  /* ── STICKY SUBMIT BAR ── */
-  .submit-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: #0f1a2e;
-    border-top: 1px solid var(--border);
-    padding: 12px 16px;
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .submit-bar-text { font-size: 13px; color: var(--muted); }
-  .submit-bar-text strong { color: var(--text); }
-  .submit-btn {
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 14px;
+  /* ── SEND BUTTON ── */
+  #send-btn {
+    background: var(--orange);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 18px 28px;
+    font-size: 17px;
     font-weight: 700;
     cursor: not-allowed;
-    white-space: nowrap;
+    width: 100%;
     transition: all 0.3s;
-    flex-shrink: 0;
+    opacity: 0.4;
+    margin-top: 8px;
   }
-  .submit-btn.active {
-    background: var(--orange);
-    border-color: var(--orange);
-    color: #fff;
-    cursor: pointer;
-  }
-  .submit-btn.active:hover { background: var(--orange-light); }
+  #send-btn.active { opacity: 1; cursor: pointer; }
+  #send-btn.active:hover { background: var(--orange-light); transform: translateY(-1px); }
 
   /* ── SERVICE SELECTOR ── */
   .service-card {
@@ -558,77 +540,39 @@
   .service-card:hover { border-color: var(--orange); color: #fff; }
   .service-card.selected { border-color: var(--orange); background: rgba(230,126,34,0.1); color: #fff; }
 
-  /* ── SUBMIT MODAL ── */
-  .modal-overlay {
+  /* ── SUCCESS OVERLAY ── */
+  #success-overlay {
+    display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.8);
-    z-index: 300;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 28px;
-    max-width: 500px;
-    width: 100%;
-    max-height: 80vh;
+    background: #1A252F;
+    z-index: 400;
     overflow-y: auto;
+    padding: 40px 20px 80px;
   }
-  .modal h2 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-  .modal .modal-sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-  .summary-row:last-of-type { border-bottom: none; }
-  .summary-row .label { color: var(--muted); }
-  .summary-row .value { font-weight: 600; color: var(--text); }
-  .word-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 12px;
-    width: 100%;
-    text-align: center;
-  }
-  .word-badge.low { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid var(--red); }
-  .word-badge.mid { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid var(--green); }
-  .word-badge.high { background: rgba(241,196,15,0.1); color: var(--gold); border: 1px solid var(--gold); }
-  .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-  .modal-cancel {
-    flex: 1;
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  .modal-confirm {
-    flex: 2;
-    background: var(--orange);
-    border: none;
-    color: #fff;
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .modal-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+  .success-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+  .success-check { font-size: 72px; margin-bottom: 24px; display: block; }
+  .success-heading { font-size: clamp(24px,5vw,36px); font-weight: 800; color: #fff; margin-bottom: 14px; }
+  .success-sub { font-size: 16px; color: var(--muted); line-height: 1.6; max-width: 520px; margin: 0 auto 36px; }
+  .success-photos { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-bottom: 36px; }
+  .success-photo-item { width: 140px; text-align: center; }
+  .success-photo-item img { width: 140px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border); }
+  .success-photo-desc { font-size: 11px; color: var(--muted); margin-top: 6px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.4; }
+  .success-svc-badge { display: inline-block; background: rgba(230,126,34,0.15); border: 1px solid var(--orange); color: var(--orange); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .success-upload-more { background: var(--orange); color: #fff; border: none; border-radius: 10px; padding: 16px 32px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; max-width: 400px; transition: background 0.2s; margin-bottom: 16px; display: block; margin-left: auto; margin-right: auto; }
+  .success-upload-more:hover { background: var(--orange-light); }
+  .success-history-link { color: var(--muted); font-size: 14px; text-decoration: underline; cursor: pointer; background: none; border: none; padding: 4px; }
+  .success-history-link:hover { color: var(--text); }
+
+  /* ── HISTORY VIEW ── */
+  .history-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
+  .history-section-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; color: #fff; background: rgba(255,255,255,0.03); user-select: none; }
+  .history-section-header:hover { background: rgba(255,255,255,0.06); }
+  .history-section-body { padding: 14px 18px; border-top: 1px solid var(--border); }
+  .history-thumb-row { display: flex; align-items: flex-start; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .history-thumb-row:last-child { border-bottom: none; }
+  .history-thumb-row img { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+  .history-thumb-desc { font-size: 13px; color: var(--text); line-height: 1.5; }
 
   /* ── UPLOAD PROGRESS ── */
   .upload-status {
@@ -650,10 +594,6 @@
   .upload-file-status.uploading { color: var(--orange); }
   .upload-file-status.error { color: var(--red); }
 
-  @media(max-width: 640px) {
-    .submit-bar { flex-direction: column; align-items: stretch; }
-    .submit-btn { text-align: center; }
-  }
 </style>
 </head>
 <body>
@@ -671,7 +611,10 @@
         <span class="logo-sub">Kansas Prairie Webworks</span>
       </div>
     </div>
-    <button class="audio-btn" onclick="playWelcome()" id="audioBtn">🎙 Welcome</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="audio-btn" onclick="showHistory()" id="historyBtn" style="display:none;">📋 History</button>
+      <button class="audio-btn" onclick="playWelcome()" id="audioBtn">🎙 Welcome</button>
+    </div>
   </div>
 </header>
 
@@ -706,10 +649,22 @@
   <!-- SERVICE SELECTOR -->
   <div id="service-selector" style="display:none">
     <div style="margin-top:20px">
-      <div class="panel-title">What service are these photos for?</div>
-      <div class="panel-sub">Pick the service before uploading so we match your photos to the right content.</div>
-      <div id="service-cards" style="display:flex;flex-direction:column;gap:12px;margin:20px 0;"></div>
+      <div style="font-size:clamp(20px,4vw,28px);font-weight:800;color:#fff;margin-bottom:14px;line-height:1.2;">What are you uploading for today?</div>
+      <div class="panel-sub" style="font-size:15px;line-height:1.7;">Pick one service at a time. Upload your photos and descriptions, then save and send. Come back and pick your next service. It's that simple.</div>
+      <div id="service-cards" style="display:flex;flex-direction:column;gap:12px;margin:24px 0 20px;"></div>
       <button class="save-btn" id="start-upload-btn" onclick="startUploading()" disabled style="opacity:0.4;cursor:not-allowed;">Start Uploading →</button>
+      <div style="margin-top:18px;font-size:12px;color:var(--muted);text-align:center;">You can upload for multiple services — just do one at a time.</div>
+    </div>
+  </div>
+
+  <!-- HISTORY VIEW -->
+  <div id="history-view" style="display:none">
+    <div style="margin-top:20px">
+      <button onclick="uploadAnotherService()" style="background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;">← Back to Upload</button>
+      <div class="panel-title">Your Upload History</div>
+      <div class="panel-sub">Everything you've sent us so far</div>
+      <div id="history-content" style="margin-top:20px;"></div>
+      <button class="save-btn" style="margin-top:24px;" onclick="uploadAnotherService()">Upload More →</button>
     </div>
   </div>
 
@@ -717,10 +672,7 @@
 
   <!-- SERVICE BADGE -->
   <div id="service-badge-bar" style="display:none;background:rgba(230,126,34,0.1);border:1px solid var(--orange);border-radius:8px;padding:10px 16px;margin-top:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:14px;">Uploading for: <strong id="service-badge-text" style="color:var(--orange);"></strong></span>
-      <button onclick="changeService()" style="background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Change Service</button>
-    </div>
+    <span style="font-size:14px;">Uploading for: <strong id="service-badge-text" style="color:var(--orange);"></strong></span>
   </div>
 
   <!-- TAB NAV -->
@@ -930,26 +882,24 @@
       </div>
     </div>
   </div>
+  <!-- SEND BUTTON -->
+  <div style="padding:0 0 40px;">
+    <div id="send-upload-status" class="upload-status"></div>
+    <button id="send-btn" onclick="sendToKPW()">Save &amp; Send to KPW</button>
+  </div>
+
   </div><!-- /portalContent -->
 </div><!-- /main -->
 
-<!-- STICKY SUBMIT BAR -->
-<div class="submit-bar" id="submitBar" style="display:none">
-  <div class="submit-bar-text"><strong id="complete-count">0 of 7</strong> sections complete</div>
-  <button class="submit-btn" id="submitBtn" onclick="openSubmitModal()">Send Everything to KPW →</button>
-</div>
-
-<!-- SUBMIT MODAL -->
-<div class="modal-overlay" id="submitModal">
-  <div class="modal">
-    <h2>Ready to send?</h2>
-    <div class="modal-sub">Here's what we'll send to KPW. Review and confirm.</div>
-    <div id="summary-content"></div>
-    <div id="upload-status" class="upload-status"></div>
-    <div class="modal-btns">
-      <button class="modal-cancel" onclick="closeModal()">Go Back</button>
-      <button class="modal-confirm" id="confirmBtn" onclick="submitAll()">Send Everything to KPW</button>
-    </div>
+<!-- SUCCESS OVERLAY -->
+<div id="success-overlay">
+  <div class="success-inner">
+    <span class="success-check">✅</span>
+    <div class="success-heading" id="success-heading">Your photos are in.</div>
+    <div class="success-sub" id="success-sub">Kansas Prairie Webworks has everything we need.</div>
+    <div class="success-photos" id="success-photos"></div>
+    <button class="success-upload-more" onclick="uploadAnotherService()">Upload Another Service →</button>
+    <div><button class="success-history-link" onclick="showHistory()">View My Upload History</button></div>
   </div>
 </div>
 
@@ -1018,7 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('welcomeAudio').src = 'upload_welcome.ogg';
 
   updateProgress();
-  updateSubmitBar();
+  updateSendBtn();
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -1135,6 +1085,7 @@ function previewImage(input, boxId) {
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+  updateSendBtn();
 }
 
 function deleteImage(boxId, e) {
@@ -1149,6 +1100,7 @@ function deleteImage(boxId, e) {
   if (fileInput) fileInput.value = '';
   delete imageFiles[boxId];
   delete imageUrls[boxId];
+  updateSendBtn();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1329,7 +1281,6 @@ function saveTab(idx) {
   markTabSaved(idx);
   celebrate();
   updateProgress();
-  updateSubmitBar();
 }
 
 function markTabSaved(idx) {
@@ -1348,14 +1299,11 @@ function updateProgress() {
   document.getElementById('progressFill').style.width = pct + '%';
 }
 
-function updateSubmitBar() {
-  document.getElementById('complete-count').textContent = savedTabs.size + ' of 7';
-  const btn = document.getElementById('submitBtn');
-  if (savedTabs.size > 0) {
-    btn.classList.add('active');
-  } else {
-    btn.classList.remove('active');
-  }
+function updateSendBtn() {
+  const btn = document.getElementById('send-btn');
+  if (!btn) return;
+  const hasPhoto = Object.keys(imageFiles).length > 0;
+  btn.classList.toggle('active', hasPhoto);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1504,86 +1452,32 @@ function selectService(name) {
 function startUploading() {
   if (!currentService) return;
   document.getElementById('service-selector').style.display  = 'none';
+  document.getElementById('history-view').style.display      = 'none';
   document.getElementById('service-badge-bar').style.display = 'block';
   document.getElementById('service-badge-text').textContent  = currentServiceName;
   document.getElementById('portalContent').style.display     = 'block';
-  document.getElementById('submitBar').style.display         = 'flex';
+  document.getElementById('historyBtn').style.display        = 'inline-block';
 }
 
-function changeService() {
+function uploadAnotherService() {
+  document.getElementById('success-overlay').style.display   = 'none';
   document.getElementById('portalContent').style.display     = 'none';
-  document.getElementById('submitBar').style.display         = 'none';
+  document.getElementById('history-view').style.display      = 'none';
   document.getElementById('service-badge-bar').style.display = 'none';
   document.getElementById('service-selector').style.display  = 'block';
+  // Reset service selection state
+  currentService     = '';
+  currentServiceName = '';
+  document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+  const startBtn = document.getElementById('start-upload-btn');
+  startBtn.disabled      = true;
+  startBtn.style.opacity = '0.4';
+  startBtn.style.cursor  = 'not-allowed';
 }
 
-// ═══════════════════════════════════════════════════════════
-// SUBMIT MODAL
-// ═══════════════════════════════════════════════════════════
-function openSubmitModal() {
-  if (savedTabs.size === 0) return;
-  buildSummary();
-  document.getElementById('submitModal').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('submitModal').classList.remove('open');
-  document.getElementById('upload-status').style.display = 'none';
-  document.getElementById('confirmBtn').disabled = false;
-  document.getElementById('confirmBtn').textContent = 'Send Everything to KPW';
-}
-
-function buildSummary() {
-  const biz = document.getElementById('businessName').value || '(no name entered)';
-  let totalWords = 0;
-  let imageCount = {};
-
-  // count images by category
-  const countImgs = (prefix, max) => {
-    let c = 0;
-    for (let i = 0; i < max; i++) {
-      if (imageFiles[prefix + i]) c++;
-    }
-    return c;
-  };
-
-  imageCount['Project photos'] = countImgs('single-img-', MAX_SINGLES);
-
-  let baImgs = 0;
-  for (let i = 0; i < MAX_BA; i++) {
-    if (imageFiles[`ba-before-${i}`]) baImgs++;
-    if (imageFiles[`ba-after-${i}`]) baImgs++;
-  }
-  imageCount['Before/After'] = baImgs;
-
-  let cjImgs = 0;
-  for (let i = 0; i < MAX_COMPLETE; i++) {
-    ['b4','mid','fin','fin2'].forEach(k => { if (imageFiles[`cj-${k}-${i}`]) cjImgs++; });
-  }
-  imageCount['Full job'] = cjImgs;
-  imageCount['Team photos'] = countImgs('team-photo-', MAX_TEAM);
-  imageCount['Truck photos'] = countImgs('truck-', MAX_TRUCKS);
-
-  // word count from all textareas
-  document.querySelectorAll('textarea').forEach(t => {
-    totalWords += t.value.trim().split(/\s+/).filter(Boolean).length;
-  });
-
-  let badge, badgeClass;
-  if (totalWords < 50) { badge = 'Add more detail for better results'; badgeClass = 'low'; }
-  else if (totalWords < 150) { badge = 'Good — Claude will work with this'; badgeClass = 'mid'; }
-  else { badge = 'Excellent — your content will sound like you'; badgeClass = 'high'; }
-
-  const html = `
-    <div class="summary-row"><span class="label">Business</span><span class="value">${biz}</span></div>
-    <div class="summary-row"><span class="label">Sections saved</span><span class="value">${savedTabs.size} of 7</span></div>
-    ${Object.entries(imageCount).filter(([,v]) => v > 0).map(([k,v]) => `
-      <div class="summary-row"><span class="label">${k}</span><span class="value">${v} image${v!==1?'s':''}</span></div>
-    `).join('')}
-    <div class="summary-row"><span class="label">Total word count</span><span class="value">${totalWords} words</span></div>
-    <div class="word-badge ${badgeClass}">${badge}</div>
-  `;
-  document.getElementById('summary-content').innerHTML = html;
+function sendToKPW() {
+  if (!document.getElementById('send-btn').classList.contains('active')) return;
+  submitAll();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1604,7 +1498,7 @@ async function uploadToCloudinary(file, folder) {
 }
 
 function addUploadRow(name) {
-  const statusEl = document.getElementById('upload-status');
+  const statusEl = document.getElementById('send-upload-status');
   statusEl.style.display = 'block';
   const row = document.createElement('div');
   row.className = 'upload-file-row';
@@ -1628,12 +1522,18 @@ async function submitAll() {
   const biz = document.getElementById('businessName').value.trim();
   if (!biz) { alert('Please enter your business name first.'); return; }
 
-  const btn = document.getElementById('confirmBtn');
-  btn.disabled = true;
-  btn.textContent = 'Uploading…';
+  const btn = document.getElementById('send-btn');
+  btn.classList.remove('active');
+  btn.style.cursor = 'not-allowed';
+  btn.textContent = 'Uploading photos…';
+
+  const statusEl = document.getElementById('send-upload-status');
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = '';
 
   const slug = getSlug();
   const base = `kpw-clients/${slug}`;
+  const sentItems = []; // {url, description} for success preview
 
   const upload = async (boxId, folder) => {
     if (!imageFiles[boxId]) return null;
@@ -1665,7 +1565,10 @@ async function submitAll() {
   for (let i = 0; i < singleCount; i++) {
     const imgUrl = await upload(`single-img-${i}`, 'projects/single');
     const desc = document.getElementById(`single-desc-${i}`)?.value || '';
-    if (imgUrl || desc) payload.projects.single.push({ imageUrl: imgUrl || '', description: desc, service: currentService });
+    if (imgUrl || desc) {
+      payload.projects.single.push({ imageUrl: imgUrl || '', description: desc, service: currentService });
+      if (imgUrl) sentItems.push({ url: imgUrl, description: desc });
+    }
   }
 
   // Before/After
@@ -1673,7 +1576,11 @@ async function submitAll() {
     const bUrl = await upload(`ba-before-${i}`, 'projects/before-after');
     const aUrl = await upload(`ba-after-${i}`, 'projects/before-after');
     const desc = document.getElementById(`ba-desc-${i}`)?.value || '';
-    if (bUrl || aUrl || desc) payload.projects.beforeAfter.push({ beforeUrl: bUrl||'', afterUrl: aUrl||'', description: desc, service: currentService });
+    if (bUrl || aUrl || desc) {
+      payload.projects.beforeAfter.push({ beforeUrl: bUrl||'', afterUrl: aUrl||'', description: desc, service: currentService });
+      if (bUrl) sentItems.push({ url: bUrl, description: 'Before — ' + desc });
+      if (aUrl) sentItems.push({ url: aUrl, description: 'After — ' + desc });
+    }
   }
 
   // Complete jobs
@@ -1682,6 +1589,7 @@ async function submitAll() {
     for (const k of ['b4','mid','fin','fin2']) {
       const u = await upload(`cj-${k}-${i}`, 'projects/complete');
       imgs.push(u || '');
+      if (u) sentItems.push({ url: u, description: document.getElementById(`cj-desc-${i}`)?.value || '' });
     }
     const desc = document.getElementById(`cj-desc-${i}`)?.value || '';
     if (imgs.some(Boolean) || desc) payload.projects.complete.push({ images: imgs, description: desc, service: currentService });
@@ -1694,7 +1602,10 @@ async function submitAll() {
     const role = document.getElementById(`team-role-${i}`)?.value || '';
     const strength = document.getElementById(`team-strength-${i}`)?.value || '';
     const description = document.getElementById(`team-desc-${i}`)?.value || '';
-    if (name || photoUrl) payload.team.push({ photoUrl: photoUrl||'', name, role, strength, description, service: currentService });
+    if (name || photoUrl) {
+      payload.team.push({ photoUrl: photoUrl||'', name, role, strength, description, service: currentService });
+      if (photoUrl) sentItems.push({ url: photoUrl, description: name + (role ? ' — ' + role : '') });
+    }
   }
 
   // Owner
@@ -1706,23 +1617,25 @@ async function submitAll() {
     wantCustomersToKnow: document.getElementById('owner-want')?.value || '',
     service: 'all'
   };
+  if (ownerPhoto) sentItems.push({ url: ownerPhoto, description: 'Owner photo — ' + (payload.owner.name || '') });
 
   // Logo
   const logoUrl = await upload('logo-box', 'logo');
   payload.logo = { url: logoUrl || '', service: 'all' };
+  if (logoUrl) sentItems.push({ url: logoUrl, description: 'Business logo' });
 
   // Extra
   const extraImgs = [];
   const bcFront = await upload('bizcard-front-box', 'extra');
   const bcBack = await upload('bizcard-back-box', 'extra');
-  if (bcFront) extraImgs.push(bcFront);
-  if (bcBack) extraImgs.push(bcBack);
+  if (bcFront) { extraImgs.push(bcFront); sentItems.push({ url: bcFront, description: 'Business card (front)' }); }
+  if (bcBack)  { extraImgs.push(bcBack);  sentItems.push({ url: bcBack,  description: 'Business card (back)' }); }
   for (let i = 0; i < truckCount; i++) {
     const u = await upload(`truck-${i}`, 'extra');
-    if (u) extraImgs.push(u);
+    if (u) { extraImgs.push(u); sentItems.push({ url: u, description: 'Truck / equipment photo' }); }
   }
   const signUrl = await upload('sign-box', 'extra');
-  if (signUrl) extraImgs.push(signUrl);
+  if (signUrl) { extraImgs.push(signUrl); sentItems.push({ url: signUrl, description: 'Sign / storefront' }); }
   payload.extra = {
     images: extraImgs,
     notes: document.getElementById('extra-notes')?.value || '',
@@ -1739,22 +1652,133 @@ async function submitAll() {
     });
     const result = await resp.json();
     if (result.success) {
-      btn.textContent = '✓ Sent!';
       localStorage.removeItem('kpw_saved_tabs');
-      setTimeout(() => {
-        closeModal();
-        showToast('Everything sent to KPW. Kaleb will be in touch!');
-      }, 1200);
+      celebrate();
+      showSuccessOverlay(currentServiceName, sentItems);
     } else {
-      btn.disabled = false;
-      btn.textContent = 'Retry Send';
+      btn.textContent = 'Save & Send to KPW';
+      btn.classList.add('active');
+      btn.style.cursor = 'pointer';
       showToast('Something went wrong — please try again or contact KPW at 785-577-7695');
     }
   } catch(e) {
-    btn.disabled = false;
-    btn.textContent = 'Retry Send';
+    btn.textContent = 'Save & Send to KPW';
+    btn.classList.add('active');
+    btn.style.cursor = 'pointer';
     showToast('Send failed — check your connection. Call KPW: 785-577-7695');
   }
+}
+// ═══════════════════════════════════════════════════════════
+// SUCCESS OVERLAY
+// ═══════════════════════════════════════════════════════════
+function showSuccessOverlay(serviceName, sentItems) {
+  document.getElementById('success-heading').textContent =
+    'Your ' + (serviceName || 'photos') + ' photos are in.';
+  document.getElementById('success-sub').textContent =
+    'Kansas Prairie Webworks has everything we need to start building your ' +
+    (serviceName || 'service') + ' content.';
+
+  const photosEl = document.getElementById('success-photos');
+  photosEl.innerHTML = '';
+  const preview = sentItems.filter(it => it.url).slice(0, 12);
+  if (preview.length) {
+    preview.forEach(it => {
+      const item = document.createElement('div');
+      item.className = 'success-photo-item';
+      item.innerHTML = `
+        <img src="${it.url}" alt="" loading="lazy">
+        <div class="success-photo-desc">${it.description || ''}</div>
+        <span class="success-svc-badge">${serviceName || currentService}</span>
+      `;
+      photosEl.appendChild(item);
+    });
+  }
+
+  document.getElementById('portalContent').style.display = 'none';
+  document.getElementById('success-overlay').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════════
+// UPLOAD HISTORY
+// ═══════════════════════════════════════════════════════════
+function showHistory() {
+  document.getElementById('success-overlay').style.display  = 'none';
+  document.getElementById('portalContent').style.display    = 'none';
+  document.getElementById('service-selector').style.display = 'none';
+  document.getElementById('history-view').style.display     = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  loadHistory();
+}
+
+async function loadHistory() {
+  const contentEl = document.getElementById('history-content');
+  const slug = getSlug();
+  if (!slug || slug === 'unknown') {
+    contentEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;">Log in first to view your history.</div>';
+    return;
+  }
+  contentEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">Loading your uploads…</div>';
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL + '?action=getClientImages&clientSlug=' + encodeURIComponent(slug));
+    const raw  = await resp.json();
+
+    // Normalize: handle array of {url,description,service} OR {images:[...]} wrapper
+    let entries = [];
+    if (Array.isArray(raw))          entries = raw;
+    else if (Array.isArray(raw.images)) entries = raw.images;
+    else if (Array.isArray(raw.resources)) {
+      entries = raw.resources.map(r => ({ url: r.secure_url, description: r.context?.custom?.alt || '', service: (r.tags || [])[0] || '' }));
+    }
+
+    entries = entries.filter(e => e && e.url);
+
+    if (!entries.length) {
+      contentEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;text-align:center;">Nothing uploaded yet — go add your first photos above.</div>';
+      return;
+    }
+
+    // Group by service
+    const byService = {};
+    entries.forEach(e => {
+      const svc = e.service || 'general';
+      if (!byService[svc]) byService[svc] = [];
+      byService[svc].push(e);
+    });
+
+    contentEl.innerHTML = '';
+    Object.entries(byService).forEach(([svc, items]) => {
+      const label = svc.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const section = document.createElement('div');
+      section.className = 'history-section';
+      const bodyId = 'hbody-' + svc.replace(/[^a-z0-9]/gi, '_');
+      section.innerHTML = `
+        <div class="history-section-header" onclick="toggleHistorySection('${bodyId}', this)">
+          <span>${label}</span>
+          <span style="color:var(--muted);font-size:12px;font-weight:400;">${items.length} photo${items.length !== 1 ? 's' : ''} ▾</span>
+        </div>
+        <div class="history-section-body" id="${bodyId}">
+          ${items.map(it => `
+            <div class="history-thumb-row">
+              <img src="${it.url}" alt="" loading="lazy" onerror="this.style.display='none'">
+              <div class="history-thumb-desc">${it.description || '<em style="color:var(--muted)">No description</em>'}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      contentEl.appendChild(section);
+    });
+  } catch(err) {
+    contentEl.innerHTML = '<div style="color:var(--red);padding:10px 0;">Could not load history. Check your connection.</div>';
+  }
+}
+
+function toggleHistorySection(bodyId, headerEl) {
+  const body = document.getElementById(bodyId);
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  const arrow = headerEl.querySelector('span:last-child');
+  if (arrow) arrow.textContent = arrow.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
 }
 </script>
 </body>
