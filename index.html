@@ -414,7 +414,7 @@
   .add-btn:hover { background: rgba(230,126,34,0.2); }
   .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* ── SAVE BUTTON ── */
+  /* ── SAVE BUTTON (service selector / history) ── */
   .save-btn {
     background: var(--orange);
     color: #fff;
@@ -430,6 +430,23 @@
     margin-top: 20px;
   }
   .save-btn:hover { background: var(--orange-light); transform: translateY(-1px); }
+
+  /* ── MARK AS DONE BUTTON (tab-level, outlined) ── */
+  .mark-done-btn {
+    background: transparent;
+    color: var(--orange);
+    border: 2px solid var(--orange);
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+  }
+  .mark-done-btn:hover { background: rgba(230,126,34,0.1); }
 
   /* ── SUCCESS TOAST ── */
   .toast {
@@ -695,7 +712,7 @@
       <div class="panel-sub">Share up to 5 individual job photos with your own description of what happened.</div>
       <div id="singles-container"></div>
       <button class="add-btn" id="add-single-btn" onclick="addSingle()">+ Add Another Project</button>
-      <button class="save-btn" onclick="saveTab(0)">Save Project Photos</button>
+      <button class="mark-done-btn" onclick="saveTab(0)">✓ Mark as Done</button>
       <div class="tab-nav-buttons">
         <button class="nav-btn" disabled>← Previous</button>
         <span class="tab-progress-label">Tab 1 of 7</span>
@@ -711,7 +728,7 @@
       <div class="panel-sub">Show the transformation. Side-by-side before and after photos with the story of what you fixed.</div>
       <div id="ba-container"></div>
       <button class="add-btn" id="add-ba-btn" onclick="addBA()">+ Add Another Set</button>
-      <button class="save-btn" onclick="saveTab(1)">Save Before &amp; After</button>
+      <button class="mark-done-btn" onclick="saveTab(1)">✓ Mark as Done</button>
       <div class="tab-nav-buttons">
         <button class="nav-btn" onclick="switchTab(0)">← Previous</button>
         <span class="tab-progress-label">Tab 2 of 7</span>
@@ -727,7 +744,7 @@
       <div class="panel-sub">Walk us through a full job from start to finish — before, during, and after.</div>
       <div id="complete-container"></div>
       <button class="add-btn" id="add-complete-btn" onclick="addComplete()">+ Add Another Job</button>
-      <button class="save-btn" onclick="saveTab(2)">Save Full Jobs</button>
+      <button class="mark-done-btn" onclick="saveTab(2)">✓ Mark as Done</button>
       <div class="tab-nav-buttons">
         <button class="nav-btn" onclick="switchTab(1)">← Previous</button>
         <span class="tab-progress-label">Tab 3 of 7</span>
@@ -743,7 +760,7 @@
       <div class="panel-sub">Faces build trust. Add up to 10 staff members — even a one-liner about what they're great at helps.</div>
       <div id="team-container"></div>
       <button class="add-btn" id="add-team-btn" onclick="addTeam()">+ Add Team Member</button>
-      <button class="save-btn" onclick="saveTab(3)">Save Team</button>
+      <button class="mark-done-btn" onclick="saveTab(3)">✓ Mark as Done</button>
       <div class="tab-nav-buttons">
         <button class="nav-btn" onclick="switchTab(2)">← Previous</button>
         <span class="tab-progress-label">Tab 4 of 7</span>
@@ -779,7 +796,7 @@
           <div class="char-counter" id="owner-want-counter">0 characters</div>
         </div>
       </div>
-      <button class="save-btn" onclick="saveTab(4)">Save Owner Info</button>
+      <button class="mark-done-btn" onclick="saveTab(4)">✓ Mark as Done</button>
       <div class="tab-nav-buttons">
         <button class="nav-btn" onclick="switchTab(3)">← Previous</button>
         <span class="tab-progress-label">Tab 5 of 7</span>
@@ -816,7 +833,7 @@
         <p>No logo file? A clear photo of your truck door, business card, or sign works great too.</p>
         <div class="format-hint">PNG with transparent background is best. JPG works fine too.</div>
       </div>
-      <button class="save-btn" onclick="saveTab(5)">Save Logo</button>
+      <button class="mark-done-btn" onclick="saveTab(5)">✓ Mark as Done</button>
       <div class="tab-nav-buttons">
         <button class="nav-btn" onclick="switchTab(4)">← Previous</button>
         <span class="tab-progress-label">Tab 6 of 7</span>
@@ -874,7 +891,7 @@
         <div class="char-counter" id="extra-notes-counter">0 characters</div>
       </div>
 
-      <button class="save-btn" onclick="saveTab(6)">Save Extras</button>
+      <button class="mark-done-btn" onclick="saveTab(6)">✓ Mark as Done</button>
       <div class="tab-nav-buttons">
         <button class="nav-btn" onclick="switchTab(5)">← Previous</button>
         <span class="tab-progress-label">Tab 7 of 7</span>
@@ -1036,7 +1053,6 @@ async function loadPortal() {
       document.getElementById('verifyErrorContact').textContent = 'Need help? Call Kaleb: 785-577-7695';
       document.getElementById('verifyErrorCard').style.display = 'block';
       document.getElementById('portalContent').style.display = 'none';
-      document.getElementById('submitBar').style.display = 'none';
       btn.disabled = false;
       btn.textContent = 'Load Portal →';
     } else {
@@ -1046,7 +1062,6 @@ async function loadPortal() {
       document.getElementById('verifyErrorContact').textContent = 'Already a client? Call or text Kaleb: 785-577-7695';
       document.getElementById('verifyErrorCard').style.display = 'block';
       document.getElementById('portalContent').style.display = 'none';
-      document.getElementById('submitBar').style.display = 'none';
       btn.disabled = false;
       btn.textContent = 'Load Portal →';
     }
@@ -1465,6 +1480,7 @@ function uploadAnotherService() {
   document.getElementById('history-view').style.display      = 'none';
   document.getElementById('service-badge-bar').style.display = 'none';
   document.getElementById('service-selector').style.display  = 'block';
+  clearAllSlots();
   // Reset service selection state
   currentService     = '';
   currentServiceName = '';
@@ -1473,6 +1489,77 @@ function uploadAnotherService() {
   startBtn.disabled      = true;
   startBtn.style.opacity = '0.4';
   startBtn.style.cursor  = 'not-allowed';
+}
+
+function clearAllSlots() {
+  // Reset all upload boxes that have images
+  document.querySelectorAll('#portalContent .img-upload-box').forEach(box => {
+    box.classList.remove('has-image');
+    const img = box.querySelector('img.preview');
+    if (img) img.remove();
+    const inner = box.querySelector('.img-upload-inner');
+    if (inner) inner.style.display = '';
+    const fi = box.querySelector('input[type="file"]');
+    if (fi) fi.value = '';
+  });
+  // Clear static extra boxes too
+  ['bizcard-front-box','bizcard-back-box','sign-box','owner-photo-box','logo-box'].forEach(id => {
+    const box = document.getElementById(id);
+    if (!box) return;
+    box.classList.remove('has-image');
+    const img = box.querySelector('img.preview');
+    if (img) img.remove();
+    const inner = box.querySelector('.img-upload-inner');
+    if (inner) inner.style.display = '';
+    const fi = box.querySelector('input[type="file"]');
+    if (fi) fi.value = '';
+  });
+
+  // Clear imageFiles and imageUrls
+  Object.keys(imageFiles).forEach(k => { delete imageFiles[k]; delete imageUrls[k]; });
+
+  // Clear all textareas and text inputs inside portal
+  document.querySelectorAll('#portalContent textarea').forEach(t => { t.value = ''; });
+  document.querySelectorAll('#portalContent input[type="text"]').forEach(inp => { inp.value = ''; });
+  document.querySelectorAll('#portalContent .char-counter').forEach(c => {
+    c.textContent = '0 characters';
+    c.classList.remove('good');
+  });
+
+  // Reset saved tabs
+  savedTabs.clear();
+  localStorage.removeItem('kpw_saved_tabs');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('saved'));
+  updateProgress();
+
+  // Reset dynamic containers — clear and re-seed one fresh slot each
+  const resetContainer = (containerId, countVar, countProp, addFn, btnId) => {
+    const container = document.getElementById(containerId);
+    if (container) container.innerHTML = '';
+    window[countProp] = 0;
+    const btn = document.getElementById(btnId);
+    if (btn) btn.disabled = false;
+    addFn();
+  };
+
+  singleCount   = 0; document.getElementById('singles-container').innerHTML  = ''; document.getElementById('add-single-btn').disabled   = false; addSingle();
+  baCount       = 0; document.getElementById('ba-container').innerHTML        = ''; document.getElementById('add-ba-btn').disabled         = false; addBA();
+  completeCount = 0; document.getElementById('complete-container').innerHTML  = ''; document.getElementById('add-complete-btn').disabled   = false; addComplete();
+  teamCount     = 0; document.getElementById('team-container').innerHTML      = ''; document.getElementById('add-team-btn').disabled        = false; addTeam();
+  truckCount    = 0; document.getElementById('truck-container').innerHTML     = ''; document.getElementById('add-truck-btn').disabled       = false; addTruck();
+
+  // Reset send button and upload status
+  const sendBtn = document.getElementById('send-btn');
+  if (sendBtn) {
+    sendBtn.classList.remove('active');
+    sendBtn.style.cursor = 'not-allowed';
+    sendBtn.textContent  = 'Save & Send to KPW';
+  }
+  const statusEl = document.getElementById('send-upload-status');
+  if (statusEl) { statusEl.innerHTML = ''; statusEl.style.display = 'none'; }
+
+  // Return to tab 0
+  switchTab(0);
 }
 
 function sendToKPW() {
@@ -1554,6 +1641,7 @@ async function submitAll() {
     action: 'updateClientPortal',
     clientSlug: slug,
     businessName: biz,
+    submittedService: currentService,
     projects: { single: [], beforeAfter: [], complete: [] },
     team: [],
     owner: {},
@@ -1713,57 +1801,48 @@ function showHistory() {
 
 async function loadHistory() {
   const contentEl = document.getElementById('history-content');
-  const slug = getSlug();
+  const slug = verifiedClientId
+    ? verifiedClientId.toLowerCase().replace(/_/g, '-')
+    : getSlug();
   if (!slug || slug === 'unknown') {
     contentEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;">Log in first to view your history.</div>';
     return;
   }
   contentEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">Loading your uploads…</div>';
   try {
-    const resp = await fetch(APPS_SCRIPT_URL + '?action=getClientImages&clientSlug=' + encodeURIComponent(slug));
+    const resp = await fetch(APPS_SCRIPT_URL + '?action=getImageHistory&clientSlug=' + encodeURIComponent(slug));
     const raw  = await resp.json();
+    const history = raw.history || [];
 
-    // Normalize: handle array of {url,description,service} OR {images:[...]} wrapper
-    let entries = [];
-    if (Array.isArray(raw))          entries = raw;
-    else if (Array.isArray(raw.images)) entries = raw.images;
-    else if (Array.isArray(raw.resources)) {
-      entries = raw.resources.map(r => ({ url: r.secure_url, description: r.context?.custom?.alt || '', service: (r.tags || [])[0] || '' }));
-    }
-
-    entries = entries.filter(e => e && e.url);
-
-    if (!entries.length) {
+    if (!history.length) {
       contentEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;text-align:center;">Nothing uploaded yet — go add your first photos above.</div>';
       return;
     }
 
-    // Group by service
-    const byService = {};
-    entries.forEach(e => {
-      const svc = e.service || 'general';
-      if (!byService[svc]) byService[svc] = [];
-      byService[svc].push(e);
-    });
-
     contentEl.innerHTML = '';
-    Object.entries(byService).forEach(([svc, items]) => {
-      const label = svc.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    history.forEach(group => {
+      const label  = group.serviceLabel || group.service || 'General';
+      const photos = group.photos || [];
       const section = document.createElement('div');
       section.className = 'history-section';
-      const bodyId = 'hbody-' + svc.replace(/[^a-z0-9]/gi, '_');
+      const bodyId = 'hbody-' + (group.service || 'general').replace(/[^a-z0-9]/gi, '_');
       section.innerHTML = `
         <div class="history-section-header" onclick="toggleHistorySection('${bodyId}', this)">
-          <span>${label}</span>
-          <span style="color:var(--muted);font-size:12px;font-weight:400;">${items.length} photo${items.length !== 1 ? 's' : ''} ▾</span>
+          <span style="color:var(--orange);">${label}</span>
+          <span style="color:var(--muted);font-size:12px;font-weight:400;">${photos.length} photo${photos.length !== 1 ? 's' : ''} ▾</span>
         </div>
         <div class="history-section-body" id="${bodyId}">
-          ${items.map(it => `
-            <div class="history-thumb-row">
-              <img src="${it.url}" alt="" loading="lazy" onerror="this.style.display='none'">
-              <div class="history-thumb-desc">${it.description || '<em style="color:var(--muted)">No description</em>'}</div>
-            </div>
-          `).join('')}
+          <div style="display:flex;flex-wrap:wrap;gap:12px;padding:8px 0;">
+            ${photos.map(it => {
+              const desc = (it.description || '');
+              const truncated = desc.length > 100 ? desc.slice(0, 100) + '…' : desc;
+              return `
+                <div style="width:140px;">
+                  <img src="${it.url}" alt="" loading="lazy" onerror="this.style.display='none'" style="width:140px;height:100px;object-fit:cover;border-radius:6px;display:block;border:1px solid var(--border);">
+                  <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4;">${truncated || '<em>No description</em>'}</div>
+                </div>`;
+            }).join('')}
+          </div>
         </div>
       `;
       contentEl.appendChild(section);
