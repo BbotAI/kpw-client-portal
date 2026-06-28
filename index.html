@@ -2002,6 +2002,7 @@ async function prefillWebsiteSlots() {
       encodeURIComponent(slug);
     const resp = await fetch(url);
     const data = await resp.json();
+    console.log('prefill data:', JSON.stringify(data).substring(0, 500));
 
     if (!data.history) return;
 
@@ -2009,6 +2010,7 @@ async function prefillWebsiteSlots() {
       h => h.type === 'website' ||
            h.service === 'website-photos'
     );
+    console.log('website photos found:', websitePhotos.length, websitePhotos.map(p => p.slot));
 
     websitePhotos.forEach(photo => {
       if (!photo.slot || !photo.url) return;
@@ -2016,6 +2018,7 @@ async function prefillWebsiteSlots() {
       const card = document.querySelector(
         '[data-slot="' + photo.slot + '"]'
       );
+      console.log('looking for slot:', photo.slot, 'found card:', !!card);
       if (!card) return;
 
       const box   = card.querySelector('.img-upload-box');
@@ -2109,6 +2112,7 @@ function buildWebsiteSlotCards(services, container) {
     card.className = 'ws-slot-card';
     card.id        = `ws-card-${slot.filename}`;
     card.dataset.slot = slot.filename;
+    console.log('card built with slot:', slot.filename, 'dataset:', card.dataset.slot);
     const boxId    = `ws-box-${slot.filename}`;
     card.innerHTML = `
       <div class="ws-slot-title">${slot.title}</div>
