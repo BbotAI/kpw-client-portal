@@ -1995,6 +1995,7 @@ async function loadWebsiteSlots() {
 }
 
 async function prefillWebsiteSlots() {
+  console.log('PREFILL START');
   try {
     const slug = verifiedClientId.toLowerCase().replace(/_/g, '-');
     const url = APPS_SCRIPT_URL +
@@ -2058,6 +2059,7 @@ async function prefillWebsiteSlots() {
 }
 
 function buildWebsiteSlotCards(services, container) {
+  console.log('BUILD SLOTS START');
   const staticSlots = [
     {
       filename: 'hero-home',
