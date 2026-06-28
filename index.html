@@ -2007,10 +2007,15 @@ async function prefillWebsiteSlots() {
 
     if (!data.history) return;
 
-    const websitePhotos = data.history.filter(
-      h => h.type === 'website' ||
-           h.service === 'website-photos'
-    );
+    const websitePhotos = [];
+    (data.history || []).forEach(group => {
+      if (group.type === 'website' ||
+          group.service === 'website-photos') {
+        (group.photos || []).forEach(photo => {
+          websitePhotos.push(photo);
+        });
+      }
+    });
     console.log('website photos found:', websitePhotos.length, websitePhotos.map(p => p.slot));
 
     websitePhotos.forEach(photo => {
