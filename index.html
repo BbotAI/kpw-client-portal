@@ -611,6 +611,81 @@
   .upload-file-status.uploading { color: var(--orange); }
   .upload-file-status.error { color: var(--red); }
 
+  /* ── HOME SCREEN ── */
+  .home-screen-wrap { max-width:600px; margin:40px auto 0; }
+  .home-screen-wrap h2 { text-align:center; font-size:clamp(20px,4vw,28px); font-weight:800; color:#fff; margin-bottom:8px; }
+  .home-sub { text-align:center; color:var(--muted); font-size:15px; margin-bottom:32px; }
+  .choice-cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:500px){ .choice-cards { grid-template-columns:1fr; } }
+  .choice-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .choice-card:hover { border-color: var(--orange); transform: translateY(-2px); }
+  .cc-icon { font-size:40px; margin-bottom:14px; display:block; }
+  .cc-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:10px; }
+  .cc-desc { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:18px; }
+  .cc-btn {
+    background: var(--orange); color:#fff; border:none; border-radius:8px;
+    padding:11px 20px; font-size:14px; font-weight:700; cursor:pointer; width:100%; transition:background 0.2s;
+  }
+  .cc-btn:hover { background:var(--orange-light); }
+
+  /* ── WEBSITE PHOTOS SLOTS ── */
+  .ws-slot-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+  }
+  .ws-slot-card.saved { border-color: var(--green); }
+  .ws-slot-title { font-size:13px; font-weight:800; color:var(--orange); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+  .ws-slot-desc { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:14px; }
+  .ws-saved-badge { display:none; color:var(--green); font-size:13px; font-weight:700; text-align:center; margin-top:8px; }
+  .ws-slot-card.saved .ws-saved-badge { display:block; }
+
+  /* ── WEBSITE DONE BAR ── */
+  .ws-done-bar {
+    position: fixed; bottom:0; left:0; right:0;
+    background: var(--darker); border-top:2px solid var(--orange); padding:12px 16px; z-index:200;
+  }
+  .ws-done-bar-inner { max-width:900px; margin:0 auto; }
+  .ws-done-count { font-size:13px; color:var(--muted); margin-bottom:8px; text-align:center; }
+  .ws-done-btn {
+    background: var(--orange); color:#fff; border:none; border-radius:10px;
+    padding:15px 24px; font-size:16px; font-weight:700; cursor:pointer; width:100%; transition:background 0.2s;
+  }
+  .ws-done-btn:hover { background:var(--orange-light); }
+
+  /* ── WEBSITE INCOMPLETE MODAL ── */
+  .ws-modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75);
+    z-index:500; align-items:center; justify-content:center; padding:20px;
+  }
+  .ws-modal-overlay.open { display:flex; }
+  .ws-modal { background:var(--card); border:2px solid var(--orange); border-radius:14px; padding:28px 24px; max-width:440px; width:100%; }
+  .ws-modal h3 { font-size:17px; font-weight:800; color:#fff; margin-bottom:12px; }
+  .ws-modal p { font-size:14px; color:var(--muted); line-height:1.7; margin-bottom:8px; }
+  .ws-modal-missing { font-size:13px; color:var(--text); margin:8px 0 16px; padding-left:20px; }
+  .ws-modal-missing li { margin-bottom:4px; }
+  .ws-modal-actions { display:flex; gap:12px; margin-top:20px; }
+  .ws-modal-back { flex:1; background:var(--darker); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:12px; font-size:14px; font-weight:600; cursor:pointer; }
+  .ws-modal-continue { flex:2; background:var(--orange); border:none; color:#fff; border-radius:8px; padding:12px; font-size:14px; font-weight:700; cursor:pointer; }
+  .ws-modal-continue:hover { background:var(--orange-light); }
+
+  /* ── WEBSITE SUCCESS OVERLAY ── */
+  #website-success-overlay {
+    display:none; position:fixed; inset:0; background:#1A252F;
+    z-index:400; overflow-y:auto; padding:40px 20px 120px;
+  }
+
 </style>
 </head>
 <body>
@@ -661,6 +736,61 @@
     <p id="verifyErrorMsg">To get started with Kansas Prairie Webworks, fill out our intake form first:</p>
     <a class="verify-error-intake-btn" id="verifyErrorAction" href="https://bbotai.github.io/kpw-intake" target="_blank">Go to Intake Form</a>
     <div class="verify-error-contact" id="verifyErrorContact">Already a client? Call or text Kaleb: 785-577-7695</div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen" style="display:none">
+    <div class="home-screen-wrap">
+      <h2>What would you like to do?</h2>
+      <p class="home-sub">Choose one to get started. You can do both.</p>
+      <div class="choice-cards">
+        <div class="choice-card" onclick="goToWebsitePhotos()">
+          <span class="cc-icon">📸</span>
+          <div class="cc-title">WEBSITE PHOTOS</div>
+          <div class="cc-desc">Upload photos that will appear on your website pages</div>
+          <button class="cc-btn">Choose This →</button>
+        </div>
+        <div class="choice-card" onclick="goToProjectPhotos()">
+          <span class="cc-icon">🏗️</span>
+          <div class="cc-title">PROJECT PHOTOS</div>
+          <div class="cc-desc">Share photos from your completed jobs with descriptions</div>
+          <button class="cc-btn">Choose This →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBSITE PHOTOS SCREEN -->
+  <div id="website-photos-screen" style="display:none">
+    <div style="margin-top:20px">
+      <button onclick="showHomeScreen()" style="background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;">← Back</button>
+      <div class="panel-title">📸 Website Photos</div>
+      <div class="panel-sub">Upload a photo for each section of your website. We'll place them on the correct pages automatically.</div>
+      <div id="ws-slots-loading" style="color:var(--muted);font-size:14px;padding:20px 0;display:none;">Loading your service pages…</div>
+      <div id="ws-slots-container" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- WEBSITE DONE BAR (fixed, shown only in website photos flow) -->
+  <div class="ws-done-bar" id="ws-done-bar" style="display:none">
+    <div class="ws-done-bar-inner">
+      <div class="ws-done-count" id="ws-done-count">📸 0 of 0 photos uploaded</div>
+      <button class="ws-done-btn" onclick="wsDoneClicked()">✓ DONE — SEND WEBSITE PHOTOS TO KPW</button>
+    </div>
+  </div>
+
+  <!-- WEBSITE INCOMPLETE MODAL -->
+  <div class="ws-modal-overlay" id="ws-incomplete-modal">
+    <div class="ws-modal">
+      <h3 id="ws-modal-title">Some photos not uploaded yet</h3>
+      <p id="ws-modal-msg"></p>
+      <ul class="ws-modal-missing" id="ws-modal-list"></ul>
+      <p>That's completely okay! Those pages will show a placeholder photo until you add yours. You can always come back and add them later.</p>
+      <div class="ws-modal-actions">
+        <button class="ws-modal-back" onclick="document.getElementById('ws-incomplete-modal').classList.remove('open')">← Go Back and Add</button>
+        <button class="ws-modal-continue" onclick="submitWebsitePhotos()">Save &amp; Continue →</button>
+      </div>
+    </div>
   </div>
 
   <!-- SERVICE SELECTOR -->
@@ -920,6 +1050,20 @@
   </div>
 </div>
 
+<!-- WEBSITE SUCCESS OVERLAY -->
+<div id="website-success-overlay">
+  <div class="success-inner">
+    <span class="success-check">✅</span>
+    <div class="success-heading">Your website photos are saved!</div>
+    <div class="success-sub">Kansas Prairie Webworks will place your photos on the correct pages of your website.</div>
+    <div style="max-width:420px;margin:0 auto 32px;">
+      <p style="font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:24px;">Want to add your project photos too? These are job photos that appear in your blog posts and social media.</p>
+      <button class="success-upload-more" onclick="goToProjectPhotos()">Add Project Photos →</button>
+      <div style="margin-top:12px;"><button class="success-history-link" onclick="showHistory()">I'm Done for Now</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- AUDIO (loaded dynamically) -->
 <audio id="welcomeAudio" preload="none"></audio>
 
@@ -951,6 +1095,12 @@ const MAX_BA = 3;
 const MAX_COMPLETE = 3;
 const MAX_TEAM = 10;
 const MAX_TRUCKS = 5;
+
+// Website photos state
+const wsSlotDefs  = [];   // ordered slot definitions (built once)
+const wsUploaded  = {};   // filename -> cloudinary url
+let   wsTotalSlots = 0;
+let   historyGroupCounter = 0;
 
 const SUCCESS_MSGS = [
   "Perfect — going straight into your content engine.",
@@ -1044,8 +1194,7 @@ async function loadPortal() {
       verifiedClientId = data.clientId || '';
       document.getElementById('verifyErrorCard').style.display = 'none';
       btn.textContent = 'Portal Loaded ✓';
-      document.getElementById('service-selector').style.display = 'block';
-      loadServices();
+      showHomeScreen();
     } else if (data.reason === 'email') {
       document.getElementById('verifyErrorTitle').textContent = 'Email doesn\'t match.';
       document.getElementById('verifyErrorMsg').textContent = 'Business name found but email doesn\'t match. Please use the email you registered with.';
@@ -1479,9 +1628,8 @@ function uploadAnotherService() {
   document.getElementById('portalContent').style.display     = 'none';
   document.getElementById('history-view').style.display      = 'none';
   document.getElementById('service-badge-bar').style.display = 'none';
-  document.getElementById('service-selector').style.display  = 'block';
+  document.getElementById('service-selector').style.display  = 'none';
   clearAllSlots();
-  // Reset service selection state
   currentService     = '';
   currentServiceName = '';
   document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
@@ -1489,6 +1637,7 @@ function uploadAnotherService() {
   startBtn.disabled      = true;
   startBtn.style.opacity = '0.4';
   startBtn.style.cursor  = 'not-allowed';
+  showHomeScreen();
 }
 
 function clearAllSlots() {
@@ -1788,13 +1937,293 @@ function showSuccessOverlay(serviceName, sentItems) {
 }
 
 // ═══════════════════════════════════════════════════════════
+// HOME SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showHomeScreen() {
+  document.getElementById('home-screen').style.display              = 'block';
+  document.getElementById('service-selector').style.display         = 'none';
+  document.getElementById('portalContent').style.display            = 'none';
+  document.getElementById('history-view').style.display             = 'none';
+  document.getElementById('website-photos-screen').style.display    = 'none';
+  document.getElementById('website-success-overlay').style.display  = 'none';
+  document.getElementById('success-overlay').style.display          = 'none';
+  document.getElementById('ws-done-bar').style.display              = 'none';
+  document.getElementById('service-badge-bar').style.display        = 'none';
+  document.getElementById('historyBtn').style.display               = 'inline-block';
+}
+
+function goToProjectPhotos() {
+  document.getElementById('home-screen').style.display              = 'none';
+  document.getElementById('website-photos-screen').style.display    = 'none';
+  document.getElementById('website-success-overlay').style.display  = 'none';
+  document.getElementById('ws-done-bar').style.display              = 'none';
+  document.getElementById('service-selector').style.display         = 'block';
+  document.getElementById('historyBtn').style.display               = 'inline-block';
+  loadServices();
+}
+
+function goToWebsitePhotos() {
+  document.getElementById('home-screen').style.display           = 'none';
+  document.getElementById('service-selector').style.display      = 'none';
+  document.getElementById('website-photos-screen').style.display = 'block';
+  document.getElementById('ws-done-bar').style.display           = 'block';
+  document.getElementById('historyBtn').style.display            = 'inline-block';
+  loadWebsiteSlots();
+}
+
+// ═══════════════════════════════════════════════════════════
+// WEBSITE PHOTOS — SLOT LOADING & RENDERING
+// ═══════════════════════════════════════════════════════════
+async function loadWebsiteSlots() {
+  if (wsSlotDefs.length > 0) { wsUpdateDoneBar(); return; }
+
+  const loadingEl  = document.getElementById('ws-slots-loading');
+  const container  = document.getElementById('ws-slots-container');
+  loadingEl.style.display = 'block';
+  container.innerHTML     = '';
+
+  let services = [];
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId));
+    const data = await resp.json();
+    services = (data.services || []).filter(s => s.status !== 'Archived');
+  } catch(e) { services = []; }
+
+  loadingEl.style.display = 'none';
+  buildWebsiteSlotCards(services, container);
+}
+
+function buildWebsiteSlotCards(services, container) {
+  const staticSlots = [
+    {
+      filename: 'hero-home',
+      title: 'HOMEPAGE HERO',
+      desc: 'Your best overall photo. This is the FIRST thing visitors see when they land on your website. Wide landscape shots work great — equipment on a job, your crew at work, or a beautiful finished project.',
+      category: 'hero', service: 'all'
+    },
+    {
+      filename: 'logo',
+      title: 'LOGO',
+      desc: "Your business logo. Transparent background (PNG) works best. This appears in your website header, footer, and blog posts. If you don't have one yet, skip this — we can add it later.",
+      category: 'logo', service: 'all'
+    },
+    {
+      filename: 'featured-1',
+      title: 'FEATURED PROJECT',
+      desc: 'A photo of your best or most recent project. This appears in a highlighted section on your homepage as a showcase of your work.',
+      category: 'featured', service: 'all'
+    }
+  ];
+
+  const serviceSlots = services.slice(0, 5).map((s, i) => ({
+    filename: `hero-service-${i + 1}`,
+    title: `${s.serviceName.toUpperCase()} HERO`,
+    desc: `A photo showing ${s.serviceName} work. This goes on your ${s.serviceName} page. On-site action shots work best — equipment working, job in progress, or a before/after.`,
+    category: 'hero',
+    service: slugifyService(s.serviceName)
+  }));
+
+  const finalSlots = [
+    ...staticSlots,
+    ...serviceSlots,
+    {
+      filename: 'about-team',
+      title: 'ABOUT / TEAM PHOTO',
+      desc: "A photo of you or your crew. This goes on your About page. Candid on-site shots work great — don't worry about it being perfect. Customers love seeing the real people behind the business.",
+      category: 'team', service: 'all'
+    },
+    {
+      filename: 'blog-placeholder',
+      title: 'BLOG PLACEHOLDER IMAGE',
+      desc: "A photo that shows as the default image on blog posts that don't have their own photo yet. A nice wide shot of your equipment, crew, or a finished project works great here.",
+      category: 'blog', service: 'all'
+    }
+  ];
+
+  wsSlotDefs.push(...finalSlots);
+  wsTotalSlots = finalSlots.length;
+
+  finalSlots.forEach(slot => {
+    const card  = document.createElement('div');
+    card.className = 'ws-slot-card';
+    card.id        = `ws-card-${slot.filename}`;
+    const boxId    = `ws-box-${slot.filename}`;
+    card.innerHTML = `
+      <div class="ws-slot-title">${slot.title}</div>
+      <div class="ws-slot-desc">${slot.desc}</div>
+      <div class="img-upload-box" id="${boxId}">
+        <div class="img-upload-inner">
+          <div class="img-upload-icon">📷</div>
+          <div class="img-upload-label">Click or tap to upload photo</div>
+        </div>
+        <button class="img-delete-btn" onclick="wsDeleteSlot('${slot.filename}', event)">×</button>
+        <input type="file" accept="image/*" onchange="wsHandleFileSelect(this, '${slot.filename}')">
+      </div>
+      <div class="ws-saved-badge">✓ Saved</div>
+    `;
+    container.appendChild(card);
+  });
+
+  wsUpdateDoneBar();
+}
+
+function wsHandleFileSelect(input, filename) {
+  const file = input.files[0];
+  if (!file) return;
+  const slot = wsSlotDefs.find(s => s.filename === filename);
+  if (!slot) return;
+
+  const boxId = `ws-box-${filename}`;
+  const box   = document.getElementById(boxId);
+  const reader = new FileReader();
+  reader.onload = e => {
+    box.classList.add('has-image');
+    const inner = box.querySelector('.img-upload-inner');
+    if (inner) inner.style.display = 'none';
+    let img = box.querySelector('img.preview');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'preview';
+      box.insertBefore(img, box.querySelector('.img-delete-btn'));
+    }
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  wsUploadSlot(file, slot);
+}
+
+function wsDeleteSlot(filename, e) {
+  e.stopPropagation();
+  const boxId = `ws-box-${filename}`;
+  const box   = document.getElementById(boxId);
+  if (!box) return;
+  box.classList.remove('has-image');
+  const img = box.querySelector('img.preview');
+  if (img) img.remove();
+  const inner = box.querySelector('.img-upload-inner');
+  if (inner) inner.style.display = '';
+  const fi = box.querySelector('input[type="file"]');
+  if (fi) fi.value = '';
+  const card = document.getElementById(`ws-card-${filename}`);
+  if (card) {
+    card.classList.remove('saved');
+    card.style.borderColor = '';
+    const badge = card.querySelector('.ws-saved-badge');
+    if (badge) { badge.textContent = '✓ Saved'; badge.style.display = 'none'; }
+  }
+  delete wsUploaded[filename];
+  wsUpdateDoneBar();
+}
+
+async function wsUploadSlot(file, slot) {
+  const slug   = getSlug();
+  const folder = `kpw-clients/${slug}/website`;
+  const card   = document.getElementById(`ws-card-${slot.filename}`);
+  const badge  = card ? card.querySelector('.ws-saved-badge') : null;
+
+  if (badge) { badge.textContent = '⏳ Uploading…'; badge.style.display = 'block'; }
+  if (card)  card.style.borderColor = 'var(--orange)';
+
+  try {
+    const url = await uploadToCloudinary(file, folder);
+    wsUploaded[slot.filename] = url;
+    if (card)  card.classList.add('saved');
+    if (badge) badge.textContent = '✓ Saved';
+    launchConfetti();
+    wsUpdateDoneBar();
+    wsSaveToAgencyBrain(slot, url);
+  } catch(e) {
+    if (card)  card.style.borderColor = 'var(--red)';
+    if (badge) badge.textContent = '✗ Upload failed — tap to retry';
+  }
+}
+
+async function wsSaveToAgencyBrain(slot, url) {
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        action:      'saveWebsiteImage',
+        clientId:    verifiedClientId,
+        clientSlug:  getSlug(),
+        url,
+        description: slot.desc,
+        category:    slot.category,
+        type:        'website',
+        service:     slot.service,
+        slot:        slot.filename
+      })
+    });
+  } catch(e) {
+    console.log('saveWebsiteImage not yet on Agency Brain — skipping');
+  }
+}
+
+function wsUpdateDoneBar() {
+  const count = Object.keys(wsUploaded).length;
+  document.getElementById('ws-done-count').textContent =
+    `📸 ${count} of ${wsTotalSlots} photos uploaded`;
+}
+
+function wsDoneClicked() {
+  const missing = wsSlotDefs.filter(s => !wsUploaded[s.filename]);
+  if (!missing.length) { submitWebsitePhotos(); return; }
+
+  document.getElementById('ws-modal-msg').textContent =
+    `You have ${missing.length} photo${missing.length !== 1 ? 's' : ''} not uploaded yet:`;
+  document.getElementById('ws-modal-list').innerHTML =
+    missing.map(s => `<li>${s.title}</li>`).join('');
+  document.getElementById('ws-incomplete-modal').classList.add('open');
+}
+
+async function submitWebsitePhotos() {
+  document.getElementById('ws-incomplete-modal').classList.remove('open');
+
+  const count   = Object.keys(wsUploaded).length;
+  const missing = wsSlotDefs.filter(s => !wsUploaded[s.filename]);
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        action:         'notifyKaleb',
+        clientId:       verifiedClientId,
+        clientName:     document.getElementById('businessName').value.trim(),
+        type:           'website-photos',
+        slotsCompleted: count,
+        slotsTotal:     wsTotalSlots,
+        emptySlots:     missing.map(s => s.title)
+      })
+    });
+  } catch(e) {
+    console.log('notifyKaleb not yet on Agency Brain — skipping');
+  }
+
+  showWebsiteSuccess();
+}
+
+function showWebsiteSuccess() {
+  launchConfetti();
+  document.getElementById('website-photos-screen').style.display   = 'none';
+  document.getElementById('ws-done-bar').style.display             = 'none';
+  document.getElementById('website-success-overlay').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════════
 // UPLOAD HISTORY
 // ═══════════════════════════════════════════════════════════
 function showHistory() {
-  document.getElementById('success-overlay').style.display  = 'none';
-  document.getElementById('portalContent').style.display    = 'none';
-  document.getElementById('service-selector').style.display = 'none';
-  document.getElementById('history-view').style.display     = 'block';
+  document.getElementById('success-overlay').style.display          = 'none';
+  document.getElementById('website-success-overlay').style.display  = 'none';
+  document.getElementById('portalContent').style.display            = 'none';
+  document.getElementById('service-selector').style.display         = 'none';
+  document.getElementById('home-screen').style.display              = 'none';
+  document.getElementById('website-photos-screen').style.display    = 'none';
+  document.getElementById('ws-done-bar').style.display              = 'none';
+  document.getElementById('history-view').style.display             = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
   loadHistory();
 }
@@ -1819,37 +2248,74 @@ async function loadHistory() {
       return;
     }
 
+    const websiteGroups = history.filter(g => g.type === 'website' || g.service === 'website-photos');
+    const projectGroups = history.filter(g => g.type !== 'website' && g.service !== 'website-photos');
+
     contentEl.innerHTML = '';
-    history.forEach(group => {
-      const label  = group.serviceLabel || group.service || 'General';
-      const photos = group.photos || [];
-      const section = document.createElement('div');
-      section.className = 'history-section';
-      const bodyId = 'hbody-' + (group.service || 'general').replace(/[^a-z0-9]/gi, '_');
-      section.innerHTML = `
-        <div class="history-section-header" onclick="toggleHistorySection('${bodyId}', this)">
-          <span style="color:var(--orange);">${label}</span>
-          <span style="color:var(--muted);font-size:12px;font-weight:400;">${photos.length} photo${photos.length !== 1 ? 's' : ''} ▾</span>
-        </div>
-        <div class="history-section-body" id="${bodyId}">
-          <div style="display:flex;flex-wrap:wrap;gap:12px;padding:8px 0;">
-            ${photos.map(it => {
-              const desc = (it.description || '');
-              const truncated = desc.length > 100 ? desc.slice(0, 100) + '…' : desc;
-              return `
-                <div style="width:140px;">
-                  <img src="${it.url}" alt="" loading="lazy" onerror="this.style.display='none'" style="width:140px;height:100px;object-fit:cover;border-radius:6px;display:block;border:1px solid var(--border);">
-                  <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4;">${truncated || '<em>No description</em>'}</div>
-                </div>`;
-            }).join('')}
-          </div>
-        </div>
-      `;
-      contentEl.appendChild(section);
-    });
+
+    // ── Website Photos section ──
+    const wsWrap = document.createElement('div');
+    wsWrap.innerHTML = '<div style="font-size:15px;font-weight:800;color:var(--orange);margin-bottom:12px;">📸 Website Photos</div>';
+    if (!websiteGroups.length) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'color:var(--muted);font-size:13px;padding:12px 0 24px;';
+      empty.textContent = 'No website photos uploaded yet.';
+      wsWrap.appendChild(empty);
+    } else {
+      websiteGroups.forEach(g => renderHistoryGroup(g, wsWrap));
+    }
+    contentEl.appendChild(wsWrap);
+
+    const divider = document.createElement('div');
+    divider.style.cssText = 'height:1px;background:var(--border);margin:8px 0 24px;';
+    contentEl.appendChild(divider);
+
+    // ── Project Photos section ──
+    const projWrap = document.createElement('div');
+    projWrap.innerHTML = '<div style="font-size:15px;font-weight:800;color:var(--orange);margin-bottom:12px;">🏗️ Project Photos</div>';
+    if (!projectGroups.length) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'color:var(--muted);font-size:13px;padding:12px 0;';
+      empty.textContent = 'No project photos uploaded yet.';
+      projWrap.appendChild(empty);
+    } else {
+      projectGroups.forEach(g => renderHistoryGroup(g, projWrap));
+    }
+    contentEl.appendChild(projWrap);
+
   } catch(err) {
     contentEl.innerHTML = '<div style="color:var(--red);padding:10px 0;">Could not load history. Check your connection.</div>';
   }
+}
+
+function renderHistoryGroup(group, parentEl) {
+  const label  = group.serviceLabel || group.service || 'General';
+  const photos = group.photos || [];
+  const section = document.createElement('div');
+  section.className = 'history-section';
+  const bodyId = 'hbody-' + (historyGroupCounter++);
+  section.innerHTML = `
+    <div class="history-section-header" onclick="toggleHistorySection('${bodyId}', this)">
+      <span style="color:var(--orange);">${label}</span>
+      <span style="color:var(--muted);font-size:12px;font-weight:400;">${photos.length} photo${photos.length !== 1 ? 's' : ''} ▾</span>
+    </div>
+    <div class="history-section-body" id="${bodyId}">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;padding:8px 0;">
+        ${photos.map(it => {
+          const desc = (it.description || '');
+          const slotLabel = it.slot ? `<div style="font-size:10px;color:var(--orange);font-weight:700;margin-bottom:3px;text-transform:uppercase;">${it.slot}</div>` : '';
+          const truncated = desc.length > 100 ? desc.slice(0, 100) + '…' : desc;
+          return `
+            <div style="width:140px;">
+              ${slotLabel}
+              <img src="${it.url}" alt="" loading="lazy" onerror="this.style.display='none'" style="width:140px;height:100px;object-fit:cover;border-radius:6px;display:block;border:1px solid var(--border);">
+              <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4;">${truncated || '<em>No description</em>'}</div>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  parentEl.appendChild(section);
 }
 
 function toggleHistorySection(bodyId, headerEl) {
