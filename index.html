@@ -1991,6 +1991,67 @@ async function loadWebsiteSlots() {
 
   loadingEl.style.display = 'none';
   buildWebsiteSlotCards(services, container);
+  await prefillWebsiteSlots();
+}
+
+async function prefillWebsiteSlots() {
+  try {
+    const slug = verifiedClientId.toLowerCase().replace(/_/g, '-');
+    const url = APPS_SCRIPT_URL +
+      '?action=getImageHistory&clientSlug=' +
+      encodeURIComponent(slug);
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    if (!data.history) return;
+
+    const websitePhotos = data.history.filter(
+      h => h.type === 'website' ||
+           h.service === 'website-photos'
+    );
+
+    websitePhotos.forEach(photo => {
+      if (!photo.slot || !photo.url) return;
+
+      const card = document.querySelector(
+        '[data-slot="' + photo.slot + '"]'
+      );
+      if (!card) return;
+
+      const box   = card.querySelector('.img-upload-box');
+      const inner = card.querySelector('.img-upload-inner');
+      const badge = card.querySelector('.ws-saved-badge');
+
+      if (box) {
+        box.classList.add('has-image');
+        let img = box.querySelector('img.preview');
+        if (!img) {
+          img = document.createElement('img');
+          img.className = 'preview';
+          box.insertBefore(img, box.querySelector('.img-delete-btn'));
+        }
+        img.src = photo.url;
+      }
+      if (inner) inner.style.display = 'none';
+      if (badge) {
+        badge.style.display = 'block';
+        badge.textContent = 'Saved ✓';
+      }
+
+      wsUploaded[photo.slot] = {
+        url: photo.url,
+        slot: photo.slot,
+        fromHistory: true
+      };
+
+      card.style.borderColor = '#22c55e';
+    });
+
+    wsUpdateDoneBar();
+
+  } catch(e) {
+    console.log('Prefill error:', e);
+  }
 }
 
 function buildWebsiteSlotCards(services, container) {
@@ -2047,6 +2108,7 @@ function buildWebsiteSlotCards(services, container) {
     const card  = document.createElement('div');
     card.className = 'ws-slot-card';
     card.id        = `ws-card-${slot.filename}`;
+    card.dataset.slot = slot.filename;
     const boxId    = `ws-box-${slot.filename}`;
     card.innerHTML = `
       <div class="ws-slot-title">${slot.title}</div>
