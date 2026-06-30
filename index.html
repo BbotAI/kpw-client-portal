@@ -2081,7 +2081,7 @@ function buildWebsiteSlotCards(services, container) {
     }
   ];
 
-  const serviceSlots = services.slice(0, 5).map((s, i) => ({
+  const serviceSlots = services.map((s, i) => ({
     filename: `hero-service-${i + 1}`,
     title: `${s.serviceName.toUpperCase()} HERO`,
     desc: `A photo showing ${s.serviceName} work. This goes on your ${s.serviceName} page. On-site action shots work best — equipment working, job in progress, or a before/after.`,
