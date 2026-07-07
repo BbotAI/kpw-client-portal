@@ -796,6 +796,7 @@
   <!-- SERVICE SELECTOR -->
   <div id="service-selector" style="display:none">
     <div style="margin-top:20px">
+      <button onclick="showHomeScreen()" style="background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;">← Back to Home</button>
       <div style="font-size:clamp(20px,4vw,28px);font-weight:800;color:#fff;margin-bottom:14px;line-height:1.2;">What are you uploading for today?</div>
       <div class="panel-sub" style="font-size:15px;line-height:1.7;">Pick one service at a time. Upload your photos and descriptions, then save and send. Come back and pick your next service. It's that simple.</div>
       <div id="service-cards" style="display:flex;flex-direction:column;gap:12px;margin:24px 0 20px;"></div>
@@ -816,6 +817,9 @@
   </div>
 
   <div id="portalContent" style="display:none">
+
+  <!-- BACK NAVIGATION -->
+  <button onclick="uploadAnotherService()" style="background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;padding:0;margin-top:16px;">← Back to Choose Service</button>
 
   <!-- SERVICE BADGE -->
   <div id="service-badge-bar" style="display:none;background:rgba(230,126,34,0.1);border:1px solid var(--orange);border-radius:8px;padding:10px 16px;margin-top:16px;">
