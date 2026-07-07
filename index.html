@@ -1079,6 +1079,38 @@ let currentTab = 0;
 const savedTabs = new Set();
 const imageFiles = {}; // boxId -> File
 const imageUrls = {};  // boxId -> uploaded URL
+let uploadInProgress = false;
+
+// ═══════════════════════════════════════════════════════════
+// FETCH HELPERS — timeout + retry for Agency Brain (Apps Script
+// cold starts can take 10-30s; Cloudinary uploads use plain fetch)
+// ═══════════════════════════════════════════════════════════
+async function fetchWithTimeout(url, options, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const resp = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return resp;
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') {
+      throw new Error('Request timed out after ' + (timeoutMs / 1000) + ' seconds');
+    }
+    throw e;
+  }
+}
+
+async function fetchWithRetry(url, options, retries = 2, timeoutMs = 15000) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fetchWithTimeout(url, options, timeoutMs);
+    } catch(e) {
+      if (i === retries) throw e;
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+}
 
 let singleCount = 0;
 let baCount = 0;
@@ -1183,7 +1215,7 @@ async function loadPortal() {
       businessName: bizName,
       email: email
     }));
-    const resp = await fetch(APPS_SCRIPT_URL, {
+    const resp = await fetchWithRetry(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'verifyClient', businessName: bizName, email: email })
@@ -1195,6 +1227,11 @@ async function loadPortal() {
       document.getElementById('verifyErrorCard').style.display = 'none';
       btn.textContent = 'Portal Loaded ✓';
       showHomeScreen();
+      // Pre-warm Agency Brain in the background so the next screen tap
+      // (which needs getServices/getImageHistory) doesn't hit a cold start.
+      setTimeout(() => {
+        fetch(APPS_SCRIPT_URL + '?action=getClient&clientId=' + encodeURIComponent(verifiedClientId)).catch(() => {});
+      }, 500);
     } else if (data.reason === 'email') {
       document.getElementById('verifyErrorTitle').textContent = 'Email doesn\'t match.';
       document.getElementById('verifyErrorMsg').textContent = 'Business name found but email doesn\'t match. Please use the email you registered with.';
@@ -1215,7 +1252,7 @@ async function loadPortal() {
       btn.textContent = 'Load Portal →';
     }
   } catch (err) {
-    alert('Could not reach Agency Brain. Check your connection and try again.');
+    alert('Taking longer than usual — please try again in a moment.');
     btn.disabled = false;
     btn.textContent = 'Load Portal →';
   }
@@ -1577,7 +1614,7 @@ async function loadServices() {
   const servicesEl = document.getElementById('service-cards');
   servicesEl.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Loading your services…</div>';
   try {
-    const resp = await fetch(APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId));
+    const resp = await fetchWithRetry(APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId));
     const data = await resp.json();
     const services = (data.services || []).filter(s => s.status !== 'Archived');
     if (!services.length) {
@@ -1593,7 +1630,7 @@ async function loadServices() {
       servicesEl.appendChild(card);
     });
   } catch(err) {
-    servicesEl.innerHTML = '<div style="color:var(--red);padding:10px 0;">Could not load services. Check your connection and try again.</div>';
+    servicesEl.innerHTML = '<div style="color:var(--red);padding:10px 0;">Taking longer than usual — <a href="#" onclick="loadServices();return false;" style="color:var(--orange);">tap to try again</a></div>';
   }
 }
 
@@ -1712,6 +1749,7 @@ function clearAllSlots() {
 }
 
 function sendToKPW() {
+  if (uploadInProgress) return;
   if (!document.getElementById('send-btn').classList.contains('active')) return;
   submitAll();
 }
@@ -1758,6 +1796,7 @@ async function submitAll() {
   const biz = document.getElementById('businessName').value.trim();
   if (!biz) { alert('Please enter your business name first.'); return; }
 
+  uploadInProgress = true;
   const btn = document.getElementById('send-btn');
   btn.classList.remove('active');
   btn.style.cursor = 'not-allowed';
@@ -1882,7 +1921,7 @@ async function submitAll() {
   // POST to Apps Script
   btn.textContent = 'Sending to KPW…';
   try {
-    const resp = await fetch(APPS_SCRIPT_URL, {
+    const resp = await fetchWithRetry(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
@@ -1902,7 +1941,9 @@ async function submitAll() {
     btn.textContent = 'Save & Send to KPW';
     btn.classList.add('active');
     btn.style.cursor = 'pointer';
-    showToast('Send failed — check your connection. Call KPW: 785-577-7695');
+    showToast('Your photos are safe — tap Save & Send to try again, or call KPW: 785-577-7695');
+  } finally {
+    uploadInProgress = false;
   }
 }
 // ═══════════════════════════════════════════════════════════
@@ -1982,28 +2023,28 @@ async function loadWebsiteSlots() {
   loadingEl.style.display = 'block';
   container.innerHTML     = '';
 
-  let services = [];
-  try {
-    const resp = await fetch(APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId));
-    const data = await resp.json();
-    services = (data.services || []).filter(s => s.status !== 'Archived');
-  } catch(e) { services = []; }
+  const slug = verifiedClientId.toLowerCase().replace(/_/g, '-');
+
+  // Fire both Agency Brain calls in parallel instead of chaining them —
+  // building the slot cards only needs `services`, so there's no reason
+  // to wait for getImageHistory to finish before starting it.
+  const [servicesData, historyData] = await Promise.all([
+    fetchWithRetry(APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId))
+      .then(r => r.json()).catch(() => ({ services: [] })),
+    fetchWithRetry(APPS_SCRIPT_URL + '?action=getImageHistory&clientSlug=' + encodeURIComponent(slug))
+      .then(r => r.json()).catch(() => ({ history: [] }))
+  ]);
+
+  const services = (servicesData.services || []).filter(s => s.status !== 'Archived');
 
   loadingEl.style.display = 'none';
   buildWebsiteSlotCards(services, container);
-  await prefillWebsiteSlots();
+  applyWebsiteHistoryPrefill(historyData);
 }
 
-async function prefillWebsiteSlots() {
+function applyWebsiteHistoryPrefill(data) {
   try {
-    const slug = verifiedClientId.toLowerCase().replace(/_/g, '-');
-    const url = APPS_SCRIPT_URL +
-      '?action=getImageHistory&clientSlug=' +
-      encodeURIComponent(slug);
-    const resp = await fetch(url);
-    const data = await resp.json();
-
-    if (!data.history) return;
+    if (!data || !data.history) return;
 
     const websitePhotos = [];
     (data.history || []).forEach(group => {
@@ -2207,7 +2248,7 @@ async function wsUploadSlot(file, slot) {
 
 async function wsSaveToAgencyBrain(slot, url) {
   try {
-    await fetch(APPS_SCRIPT_URL, {
+    await fetchWithRetry(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
@@ -2251,7 +2292,7 @@ async function submitWebsitePhotos() {
   const missing = wsSlotDefs.filter(s => !wsUploaded[s.filename]);
 
   try {
-    await fetch(APPS_SCRIPT_URL, {
+    await fetchWithRetry(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
@@ -2306,7 +2347,7 @@ async function loadHistory() {
   }
   contentEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">Loading your uploads…</div>';
   try {
-    const resp = await fetch(APPS_SCRIPT_URL + '?action=getImageHistory&clientSlug=' + encodeURIComponent(slug));
+    const resp = await fetchWithRetry(APPS_SCRIPT_URL + '?action=getImageHistory&clientSlug=' + encodeURIComponent(slug));
     const raw  = await resp.json();
     const history = raw.history || [];
 
@@ -2351,7 +2392,7 @@ async function loadHistory() {
     contentEl.appendChild(projWrap);
 
   } catch(err) {
-    contentEl.innerHTML = '<div style="color:var(--red);padding:10px 0;">Could not load history. Check your connection.</div>';
+    contentEl.innerHTML = '<div style="color:var(--red);padding:10px 0;">Your photos are saved — <a href="#" onclick="loadHistory();return false;" style="color:var(--orange);">tap here to reload your history</a></div>';
   }
 }
 
