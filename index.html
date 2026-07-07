@@ -1270,6 +1270,7 @@ function previewImage(input, boxId) {
   const file = input.files[0];
   if (!file) return;
   imageFiles[boxId] = file;
+  delete imageUrls[boxId]; // a newly-picked file always needs a fresh upload
   const box = document.getElementById(boxId);
   const reader = new FileReader();
   reader.onload = e => {
@@ -1757,36 +1758,119 @@ function sendToKPW() {
 // ═══════════════════════════════════════════════════════════
 // UPLOAD TO CLOUDINARY
 // ═══════════════════════════════════════════════════════════
-async function uploadToCloudinary(file, folder) {
+async function uploadToCloudinary(file, folder, timeoutMs = 30000) {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', CLOUDINARY_PRESET);
   formData.append('folder', folder);
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
-    method: 'POST',
-    body: formData
-  });
-  if (!res.ok) throw new Error('Upload failed');
-  const data = await res.json();
-  return data.secure_url;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('Upload failed');
+    const data = await res.json();
+    return data.secure_url;
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') {
+      throw new Error('Upload taking too long — tap to try again');
+    }
+    throw e;
+  }
 }
 
-function addUploadRow(name) {
+// Rows are keyed by boxId (not filename) so two photos that happen to
+// share a filename never collide — important now that uploads run in
+// parallel instead of one at a time.
+function addUploadRow(boxId, displayName) {
   const statusEl = document.getElementById('send-upload-status');
   statusEl.style.display = 'block';
-  const row = document.createElement('div');
-  row.className = 'upload-file-row';
-  row.id = 'uprow-' + name.replace(/[^a-z0-9]/gi, '_');
-  row.innerHTML = `<span class="upload-file-name">${name}</span><span class="upload-file-status uploading" id="upstat-${name.replace(/[^a-z0-9]/gi,'_')}">Uploading…</span>`;
-  statusEl.appendChild(row);
-  return name.replace(/[^a-z0-9]/gi, '_');
+  let row = document.getElementById('uprow-' + boxId);
+  if (!row) {
+    row = document.createElement('div');
+    row.className = 'upload-file-row';
+    row.id = 'uprow-' + boxId;
+    row.innerHTML = `<span class="upload-file-name">${displayName}</span><span class="upload-file-status uploading" id="upstat-${boxId}">Uploading…</span>`;
+    statusEl.appendChild(row);
+  } else {
+    const nameEl = row.querySelector('.upload-file-name');
+    if (nameEl) nameEl.textContent = displayName;
+  }
 }
 
-function setUploadStatus(key, status, ok) {
-  const el = document.getElementById('upstat-' + key);
+function setUploadingStatus(boxId) {
+  const el = document.getElementById('upstat-' + boxId);
+  if (!el) return;
+  el.textContent = 'Uploading…';
+  el.className = 'upload-file-status uploading';
+  el.style.cursor = '';
+  el.onclick = null;
+}
+
+function setUploadStatus(boxId, status, ok, retryHandler) {
+  const el = document.getElementById('upstat-' + boxId);
   if (!el) return;
   el.textContent = status;
   el.className = 'upload-file-status ' + (ok ? 'done' : 'error');
+  if (!ok && retryHandler) {
+    el.style.cursor = 'pointer';
+    el.style.textDecoration = 'underline';
+    el.onclick = retryHandler;
+  } else {
+    el.style.cursor = '';
+    el.style.textDecoration = '';
+    el.onclick = null;
+  }
+}
+
+// Every box that currently has a chosen file, across all tabs — used to
+// upload all pending photos at once instead of one at a time.
+function collectUploadTasks() {
+  const tasks = [];
+  for (let i = 0; i < singleCount; i++) tasks.push({ boxId: `single-img-${i}`, folder: 'projects/single' });
+  for (let i = 0; i < baCount; i++) {
+    tasks.push({ boxId: `ba-before-${i}`, folder: 'projects/before-after' });
+    tasks.push({ boxId: `ba-after-${i}`,  folder: 'projects/before-after' });
+  }
+  for (let i = 0; i < completeCount; i++) {
+    for (const k of ['b4','mid','fin','fin2']) tasks.push({ boxId: `cj-${k}-${i}`, folder: 'projects/complete' });
+  }
+  for (let i = 0; i < teamCount; i++) tasks.push({ boxId: `team-photo-${i}`, folder: 'team' });
+  tasks.push({ boxId: 'owner-photo-box', folder: 'owner' });
+  tasks.push({ boxId: 'logo-box', folder: 'logo' });
+  tasks.push({ boxId: 'bizcard-front-box', folder: 'extra' });
+  tasks.push({ boxId: 'bizcard-back-box', folder: 'extra' });
+  for (let i = 0; i < truckCount; i++) tasks.push({ boxId: `truck-${i}`, folder: 'extra' });
+  tasks.push({ boxId: 'sign-box', folder: 'extra' });
+  return tasks;
+}
+
+// Uploads a single box's file to Cloudinary. Safe to call more than once
+// for the same boxId — skips re-uploading if it already succeeded, so
+// clicking "tap to try again" (or hitting Save & Send again) never
+// double-uploads photos that already made it up.
+async function attemptUpload(boxId, folder) {
+  if (!imageFiles[boxId]) return null;
+  if (imageUrls[boxId]) return imageUrls[boxId];
+  addUploadRow(boxId, imageFiles[boxId].name);
+  setUploadingStatus(boxId);
+  try {
+    const url = await uploadToCloudinary(imageFiles[boxId], folder);
+    imageUrls[boxId] = url;
+    setUploadStatus(boxId, '✓ Done', true);
+    return url;
+  } catch(e) {
+    const message = (e && e.message === 'Upload taking too long — tap to try again')
+      ? e.message
+      : 'Upload failed — tap to try again';
+    setUploadStatus(boxId, message, false, () => attemptUpload(boxId, folder));
+    return null;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1810,138 +1894,144 @@ async function submitAll() {
   const base = `kpw-clients/${slug}`;
   const sentItems = []; // {url, description} for success preview
 
-  const upload = async (boxId, folder) => {
-    if (!imageFiles[boxId]) return null;
-    const key = addUploadRow(imageFiles[boxId].name);
-    try {
-      const url = await uploadToCloudinary(imageFiles[boxId], `${base}/${folder}`);
-      imageUrls[boxId] = url;
-      setUploadStatus(key, '✓ Done', true);
-      return url;
-    } catch(e) {
-      setUploadStatus(key, '✗ Failed', false);
-      return null;
-    }
-  };
-
-  // Build payload
-  const payload = {
-    action: 'updateClientPortal',
-    clientSlug: slug,
-    businessName: biz,
-    submittedService: currentService,
-    projects: { single: [], beforeAfter: [], complete: [] },
-    team: [],
-    owner: {},
-    logo: {},
-    extra: { images: [], notes: '' }
-  };
-
-  // Singles
-  for (let i = 0; i < singleCount; i++) {
-    const imgUrl = await upload(`single-img-${i}`, 'projects/single');
-    const desc = document.getElementById(`single-desc-${i}`)?.value || '';
-    if (imgUrl || desc) {
-      payload.projects.single.push({ imageUrl: imgUrl || '', description: desc, service: currentService });
-      if (imgUrl) sentItems.push({ url: imgUrl, description: desc });
-    }
-  }
-
-  // Before/After
-  for (let i = 0; i < baCount; i++) {
-    const bUrl = await upload(`ba-before-${i}`, 'projects/before-after');
-    const aUrl = await upload(`ba-after-${i}`, 'projects/before-after');
-    const desc = document.getElementById(`ba-desc-${i}`)?.value || '';
-    if (bUrl || aUrl || desc) {
-      payload.projects.beforeAfter.push({ beforeUrl: bUrl||'', afterUrl: aUrl||'', description: desc, service: currentService });
-      if (bUrl) sentItems.push({ url: bUrl, description: 'Before — ' + desc });
-      if (aUrl) sentItems.push({ url: aUrl, description: 'After — ' + desc });
-    }
-  }
-
-  // Complete jobs
-  for (let i = 0; i < completeCount; i++) {
-    const imgs = [];
-    for (const k of ['b4','mid','fin','fin2']) {
-      const u = await upload(`cj-${k}-${i}`, 'projects/complete');
-      imgs.push(u || '');
-      if (u) sentItems.push({ url: u, description: document.getElementById(`cj-desc-${i}`)?.value || '' });
-    }
-    const desc = document.getElementById(`cj-desc-${i}`)?.value || '';
-    if (imgs.some(Boolean) || desc) payload.projects.complete.push({ images: imgs, description: desc, service: currentService });
-  }
-
-  // Team
-  for (let i = 0; i < teamCount; i++) {
-    const photoUrl = await upload(`team-photo-${i}`, 'team');
-    const name = document.getElementById(`team-name-${i}`)?.value || '';
-    const role = document.getElementById(`team-role-${i}`)?.value || '';
-    const strength = document.getElementById(`team-strength-${i}`)?.value || '';
-    const description = document.getElementById(`team-desc-${i}`)?.value || '';
-    if (name || photoUrl) {
-      payload.team.push({ photoUrl: photoUrl||'', name, role, strength, description, service: currentService });
-      if (photoUrl) sentItems.push({ url: photoUrl, description: name + (role ? ' — ' + role : '') });
-    }
-  }
-
-  // Owner
-  const ownerPhoto = await upload('owner-photo-box', 'owner');
-  payload.owner = {
-    photoUrl: ownerPhoto || '',
-    name: document.getElementById('owner-name')?.value || '',
-    story: document.getElementById('owner-story')?.value || '',
-    wantCustomersToKnow: document.getElementById('owner-want')?.value || '',
-    service: 'all'
-  };
-  if (ownerPhoto) sentItems.push({ url: ownerPhoto, description: 'Owner photo — ' + (payload.owner.name || '') });
-
-  // Logo
-  const logoUrl = await upload('logo-box', 'logo');
-  payload.logo = { url: logoUrl || '', service: 'all' };
-  if (logoUrl) sentItems.push({ url: logoUrl, description: 'Business logo' });
-
-  // Extra
-  const extraImgs = [];
-  const bcFront = await upload('bizcard-front-box', 'extra');
-  const bcBack = await upload('bizcard-back-box', 'extra');
-  if (bcFront) { extraImgs.push(bcFront); sentItems.push({ url: bcFront, description: 'Business card (front)' }); }
-  if (bcBack)  { extraImgs.push(bcBack);  sentItems.push({ url: bcBack,  description: 'Business card (back)' }); }
-  for (let i = 0; i < truckCount; i++) {
-    const u = await upload(`truck-${i}`, 'extra');
-    if (u) { extraImgs.push(u); sentItems.push({ url: u, description: 'Truck / equipment photo' }); }
-  }
-  const signUrl = await upload('sign-box', 'extra');
-  if (signUrl) { extraImgs.push(signUrl); sentItems.push({ url: signUrl, description: 'Sign / storefront' }); }
-  payload.extra = {
-    images: extraImgs,
-    notes: document.getElementById('extra-notes')?.value || '',
-    service: currentService
-  };
-
-  // POST to Apps Script
-  btn.textContent = 'Sending to KPW…';
   try {
-    const resp = await fetchWithRetry(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
-    const result = await resp.json();
-    if (result.success) {
-      localStorage.removeItem('kpw_saved_tabs');
-      celebrate();
-      showSuccessOverlay(currentServiceName, sentItems);
-    } else {
+    // Upload every pending photo at once instead of one at a time — a
+    // single slow/timed-out photo (capped at 30s now, see uploadToCloudinary)
+    // no longer blocks the rest of the batch or the final save.
+    const uploadTasks = collectUploadTasks().map(t => ({ boxId: t.boxId, folder: `${base}/${t.folder}` }));
+    await Promise.all(uploadTasks.map(t => attemptUpload(t.boxId, t.folder)));
+
+    const failedBoxIds = uploadTasks
+      .map(t => t.boxId)
+      .filter(boxId => imageFiles[boxId] && !imageUrls[boxId]);
+
+    if (failedBoxIds.length) {
       btn.textContent = 'Save & Send to KPW';
       btn.classList.add('active');
       btn.style.cursor = 'pointer';
-      showToast('Something went wrong — please try again or contact KPW at 785-577-7695');
+      showToast('Some photos didn\'t upload — tap "try again" above, then hit Save & Send.');
+      return;
     }
-  } catch(e) {
-    btn.textContent = 'Save & Send to KPW';
-    btn.classList.add('active');
-    btn.style.cursor = 'pointer';
-    showToast('Your photos are safe — tap Save & Send to try again, or call KPW: 785-577-7695');
+
+    // Build payload
+    const payload = {
+      action: 'updateClientPortal',
+      clientSlug: slug,
+      businessName: biz,
+      submittedService: currentService,
+      projects: { single: [], beforeAfter: [], complete: [] },
+      team: [],
+      owner: {},
+      logo: {},
+      extra: { images: [], notes: '' }
+    };
+
+    // Singles
+    for (let i = 0; i < singleCount; i++) {
+      const imgUrl = imageUrls[`single-img-${i}`] || null;
+      const desc = document.getElementById(`single-desc-${i}`)?.value || '';
+      if (imgUrl || desc) {
+        payload.projects.single.push({ imageUrl: imgUrl || '', description: desc, service: currentService });
+        if (imgUrl) sentItems.push({ url: imgUrl, description: desc });
+      }
+    }
+
+    // Before/After
+    for (let i = 0; i < baCount; i++) {
+      const bUrl = imageUrls[`ba-before-${i}`] || null;
+      const aUrl = imageUrls[`ba-after-${i}`] || null;
+      const desc = document.getElementById(`ba-desc-${i}`)?.value || '';
+      if (bUrl || aUrl || desc) {
+        payload.projects.beforeAfter.push({ beforeUrl: bUrl||'', afterUrl: aUrl||'', description: desc, service: currentService });
+        if (bUrl) sentItems.push({ url: bUrl, description: 'Before — ' + desc });
+        if (aUrl) sentItems.push({ url: aUrl, description: 'After — ' + desc });
+      }
+    }
+
+    // Complete jobs
+    for (let i = 0; i < completeCount; i++) {
+      const imgs = [];
+      for (const k of ['b4','mid','fin','fin2']) {
+        const u = imageUrls[`cj-${k}-${i}`] || null;
+        imgs.push(u || '');
+        if (u) sentItems.push({ url: u, description: document.getElementById(`cj-desc-${i}`)?.value || '' });
+      }
+      const desc = document.getElementById(`cj-desc-${i}`)?.value || '';
+      if (imgs.some(Boolean) || desc) payload.projects.complete.push({ images: imgs, description: desc, service: currentService });
+    }
+
+    // Team
+    for (let i = 0; i < teamCount; i++) {
+      const photoUrl = imageUrls[`team-photo-${i}`] || null;
+      const name = document.getElementById(`team-name-${i}`)?.value || '';
+      const role = document.getElementById(`team-role-${i}`)?.value || '';
+      const strength = document.getElementById(`team-strength-${i}`)?.value || '';
+      const description = document.getElementById(`team-desc-${i}`)?.value || '';
+      if (name || photoUrl) {
+        payload.team.push({ photoUrl: photoUrl||'', name, role, strength, description, service: currentService });
+        if (photoUrl) sentItems.push({ url: photoUrl, description: name + (role ? ' — ' + role : '') });
+      }
+    }
+
+    // Owner
+    const ownerPhoto = imageUrls['owner-photo-box'] || null;
+    payload.owner = {
+      photoUrl: ownerPhoto || '',
+      name: document.getElementById('owner-name')?.value || '',
+      story: document.getElementById('owner-story')?.value || '',
+      wantCustomersToKnow: document.getElementById('owner-want')?.value || '',
+      service: 'all'
+    };
+    if (ownerPhoto) sentItems.push({ url: ownerPhoto, description: 'Owner photo — ' + (payload.owner.name || '') });
+
+    // Logo
+    const logoUrl = imageUrls['logo-box'] || null;
+    payload.logo = { url: logoUrl || '', service: 'all' };
+    if (logoUrl) sentItems.push({ url: logoUrl, description: 'Business logo' });
+
+    // Extra
+    const extraImgs = [];
+    const bcFront = imageUrls['bizcard-front-box'] || null;
+    const bcBack = imageUrls['bizcard-back-box'] || null;
+    if (bcFront) { extraImgs.push(bcFront); sentItems.push({ url: bcFront, description: 'Business card (front)' }); }
+    if (bcBack)  { extraImgs.push(bcBack);  sentItems.push({ url: bcBack,  description: 'Business card (back)' }); }
+    for (let i = 0; i < truckCount; i++) {
+      const u = imageUrls[`truck-${i}`] || null;
+      if (u) { extraImgs.push(u); sentItems.push({ url: u, description: 'Truck / equipment photo' }); }
+    }
+    const signUrl = imageUrls['sign-box'] || null;
+    if (signUrl) { extraImgs.push(signUrl); sentItems.push({ url: signUrl, description: 'Sign / storefront' }); }
+    payload.extra = {
+      images: extraImgs,
+      notes: document.getElementById('extra-notes')?.value || '',
+      service: currentService
+    };
+
+    // POST to Apps Script
+    btn.textContent = 'Sending to KPW…';
+    try {
+      const resp = await fetchWithRetry(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+      const result = await resp.json();
+      if (result.success) {
+        localStorage.removeItem('kpw_saved_tabs');
+        celebrate();
+        showSuccessOverlay(currentServiceName, sentItems);
+      } else {
+        btn.textContent = 'Save & Send to KPW';
+        btn.classList.add('active');
+        btn.style.cursor = 'pointer';
+        showToast('Something went wrong — please try again or contact KPW at 785-577-7695');
+      }
+    } catch(e) {
+      btn.textContent = 'Save & Send to KPW';
+      btn.classList.add('active');
+      btn.style.cursor = 'pointer';
+      showToast('Your photos are safe — tap Save & Send to try again, or call KPW: 785-577-7695');
+    }
   } finally {
     uploadInProgress = false;
   }
