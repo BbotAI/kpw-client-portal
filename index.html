@@ -1116,6 +1116,41 @@ async function fetchWithRetry(url, options, retries = 2, timeoutMs = 15000) {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+// AGENCY BRAIN CACHE — getServices/getImageHistory are identical
+// no matter which screen asks for them, so fetch each once per
+// verified client and reuse. Invalidate cachedHistory whenever a
+// save changes what's actually stored server-side.
+// ═══════════════════════════════════════════════════════════
+let cachedServices = null;
+let cachedHistory = null;
+let cachedClientId = null;
+
+async function getCachedServices() {
+  if (cachedServices && cachedClientId === verifiedClientId) {
+    return cachedServices;
+  }
+  const url = APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId);
+  const resp = await fetchWithRetry(url);
+  const data = await resp.json();
+  cachedServices = data.services || [];
+  cachedClientId = verifiedClientId;
+  return cachedServices;
+}
+
+async function getCachedHistory() {
+  if (cachedHistory && cachedClientId === verifiedClientId) {
+    return cachedHistory;
+  }
+  const slug = verifiedClientId.toLowerCase().replace(/_/g, '-');
+  const url = APPS_SCRIPT_URL + '?action=getImageHistory&clientSlug=' + encodeURIComponent(slug);
+  const resp = await fetchWithRetry(url);
+  const data = await resp.json();
+  cachedHistory = data.history || [];
+  cachedClientId = verifiedClientId;
+  return cachedHistory;
+}
+
 let singleCount = 0;
 let baCount = 0;
 let completeCount = 0;
@@ -1137,6 +1172,7 @@ const wsSlotDefs  = [];   // ordered slot definitions (built once)
 const wsUploaded  = {};   // filename -> cloudinary url
 let   wsTotalSlots = 0;
 let   historyGroupCounter = 0;
+let   wsSaveQueue = Promise.resolve(); // serializes Agency Brain saves so concurrent slot uploads never race
 
 const SUCCESS_MSGS = [
   "Perfect — going straight into your content engine.",
@@ -1619,9 +1655,7 @@ async function loadServices() {
   const servicesEl = document.getElementById('service-cards');
   servicesEl.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:10px 0;">Loading your services…</div>';
   try {
-    const resp = await fetchWithRetry(APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId));
-    const data = await resp.json();
-    const services = (data.services || []).filter(s => s.status !== 'Archived');
+    const services = (await getCachedServices()).filter(s => s.status !== 'Archived');
     if (!services.length) {
       servicesEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">No services found for your account. Contact KPW at 785-577-7695.</div>';
       return;
@@ -2021,6 +2055,7 @@ async function submitAll() {
       });
       const result = await resp.json();
       if (result.success) {
+        cachedHistory = null; // server data changed — next history view must fetch fresh
         localStorage.removeItem('kpw_saved_tabs');
         celebrate();
         showSuccessOverlay(currentServiceName, sentItems);
@@ -2117,23 +2152,21 @@ async function loadWebsiteSlots() {
   loadingEl.style.display = 'block';
   container.innerHTML     = '';
 
-  const slug = verifiedClientId.toLowerCase().replace(/_/g, '-');
-
   // Fire both Agency Brain calls in parallel instead of chaining them —
   // building the slot cards only needs `services`, so there's no reason
-  // to wait for getImageHistory to finish before starting it.
-  const [servicesData, historyData] = await Promise.all([
-    fetchWithRetry(APPS_SCRIPT_URL + '?action=getServices&clientId=' + encodeURIComponent(verifiedClientId))
-      .then(r => r.json()).catch(() => ({ services: [] })),
-    fetchWithRetry(APPS_SCRIPT_URL + '?action=getImageHistory&clientSlug=' + encodeURIComponent(slug))
-      .then(r => r.json()).catch(() => ({ history: [] }))
+  // to wait for getImageHistory to finish before starting it. Both are
+  // cached per verified client, so this is a no-op fetch-wise if the
+  // service selector already loaded services this session.
+  const [servicesArr, historyArr] = await Promise.all([
+    getCachedServices().catch(() => []),
+    getCachedHistory().catch(() => [])
   ]);
 
-  const services = (servicesData.services || []).filter(s => s.status !== 'Archived');
+  const services = servicesArr.filter(s => s.status !== 'Archived');
 
   loadingEl.style.display = 'none';
   buildWebsiteSlotCards(services, container);
-  applyWebsiteHistoryPrefill(historyData);
+  applyWebsiteHistoryPrefill({ history: historyArr });
 }
 
 function applyWebsiteHistoryPrefill(data) {
@@ -2216,13 +2249,19 @@ function buildWebsiteSlotCards(services, container) {
     }
   ];
 
-  const serviceSlots = services.map((s, i) => ({
-    filename: `hero-service-${i + 1}`,
-    title: `${s.serviceName.toUpperCase()} HERO`,
-    desc: `A photo showing ${s.serviceName} work. This goes on your ${s.serviceName} page. On-site action shots work best — equipment working, job in progress, or a before/after.`,
-    category: 'hero',
-    service: slugifyService(s.serviceName)
-  }));
+  // Keyed by the service's own slug, not its position in the list — so if
+  // services get reordered/added/removed in the sheet, a slot still maps
+  // to the same service instead of whatever now happens to sit at index N.
+  const serviceSlots = services.map((s) => {
+    const svcSlug = s.slug || slugifyService(s.serviceName);
+    return {
+      filename: `hero-${svcSlug}`,
+      title: `${s.serviceName.toUpperCase()} HERO`,
+      desc: `A photo showing ${s.serviceName} work. This goes on your ${s.serviceName} page. On-site action shots work best — equipment working, job in progress, or a before/after.`,
+      category: 'hero',
+      service: svcSlug
+    };
+  });
 
   const finalSlots = [
     ...staticSlots,
@@ -2333,7 +2372,14 @@ async function wsUploadSlot(file, slot) {
     if (badge) badge.textContent = '✓ Saved';
     launchConfetti();
     wsUpdateDoneBar();
-    wsSaveToAgencyBrain(slot, url);
+    // Chain onto the shared queue instead of firing this off directly —
+    // if the client taps through several slots quickly, each save waits
+    // for the previous one to finish instead of racing it to the same
+    // Agency Brain row.
+    wsSaveQueue = wsSaveQueue.then(async () => {
+      await wsSaveToAgencyBrain(slot, url);
+    });
+    await wsSaveQueue;
   } catch(e) {
     if (card)  card.style.borderColor = 'var(--red)';
     if (badge) badge.textContent = '✗ Upload failed — tap to retry';
@@ -2357,6 +2403,7 @@ async function wsSaveToAgencyBrain(slot, url) {
         slot:        slot.filename
       })
     });
+    cachedHistory = null; // server data changed — next history view must fetch fresh
   } catch(e) {
     console.log('saveWebsiteImage not yet on Agency Brain — skipping');
   }
@@ -2441,9 +2488,7 @@ async function loadHistory() {
   }
   contentEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">Loading your uploads…</div>';
   try {
-    const resp = await fetchWithRetry(APPS_SCRIPT_URL + '?action=getImageHistory&clientSlug=' + encodeURIComponent(slug));
-    const raw  = await resp.json();
-    const history = raw.history || [];
+    const history = await getCachedHistory();
 
     if (!history.length) {
       contentEl.innerHTML = '<div style="color:var(--muted);padding:20px 0;text-align:center;">Nothing uploaded yet — go add your first photos above.</div>';
