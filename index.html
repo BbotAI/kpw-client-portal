@@ -69,6 +69,13 @@
     white-space: nowrap;
   }
   .audio-btn:hover { background: var(--orange); color: #fff; }
+  .track-select {
+    padding: 7px 10px;
+    font-family: inherit;
+    outline: none;
+  }
+  .track-select:hover, .track-select:focus { background: var(--orange); color: #fff; }
+  .track-select option { background: var(--darker, #0a1120); color: var(--text, #fff); }
 
   /* ── PROGRESS BAR ── */
   .progress-bar-wrap {
@@ -705,6 +712,11 @@
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <button class="audio-btn" onclick="showHistory()" id="historyBtn" style="display:none;">📋 History</button>
+      <select class="audio-btn track-select" id="welcomeTrackSelect" aria-label="Choose audio track" onchange="onWelcomeTrackChange()">
+        <option value="upload_welcome.ogg">Welcome Message</option>
+        <option value="audio_country.mp3">Country</option>
+        <option value="audio_hiphop.mp3">Hip Hop</option>
+      </select>
       <button class="audio-btn" onclick="playWelcome()" id="audioBtn">🎙 Welcome</button>
     </div>
   </div>
@@ -1203,8 +1215,8 @@ document.addEventListener('DOMContentLoaded', () => {
   addTeam();
   addTruck();
 
-  // Set audio src
-  document.getElementById('welcomeAudio').src = 'upload_welcome.ogg';
+  // Set audio src from whichever track is selected
+  document.getElementById('welcomeAudio').src = document.getElementById('welcomeTrackSelect').value;
 
   updateProgress();
   updateSendBtn();
@@ -1647,6 +1659,14 @@ function playWelcome() {
 document.getElementById('welcomeAudio').addEventListener('ended', () => {
   document.getElementById('audioBtn').textContent = '🎙 Welcome';
 });
+
+function onWelcomeTrackChange() {
+  const audio = document.getElementById('welcomeAudio');
+  audio.pause();
+  audio.currentTime = 0;
+  audio.src = document.getElementById('welcomeTrackSelect').value;
+  document.getElementById('audioBtn').textContent = '🎙 Welcome';
+}
 
 // ═══════════════════════════════════════════════════════════
 // SERVICE SELECTOR
