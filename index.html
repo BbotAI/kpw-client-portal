@@ -69,13 +69,56 @@
     white-space: nowrap;
   }
   .audio-btn:hover { background: var(--orange); color: #fff; }
-  .track-select {
-    padding: 7px 10px;
-    font-family: inherit;
-    outline: none;
+  .audio-btn.active { background: var(--orange); color: #fff; }
+
+  @media (max-width: 480px) {
+    .audio-btn { padding: 7px 10px; font-size: 12px; }
   }
-  .track-select:hover, .track-select:focus { background: var(--orange); color: #fff; }
-  .track-select option { background: var(--darker, #0a1120); color: var(--text, #fff); }
+
+  /* ── Welcome message showcase ─────────────────────────────────────────── */
+  .welcome-showcase {
+    max-width: 860px;
+    width: calc(100% - 40px);
+    margin: 16px auto 0;
+    padding: 14px 20px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(230, 126, 34, 0.08);
+    border: 1.5px solid rgba(230, 126, 34, 0.35);
+    border-radius: var(--radius);
+  }
+  .welcome-showcase__icon { font-size: 22px; flex-shrink: 0; }
+  .welcome-showcase__text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .welcome-showcase__text strong { color: var(--text); font-size: 14px; }
+  .welcome-showcase__btn {
+    flex-shrink: 0;
+    background: var(--orange);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .welcome-showcase__btn:hover { background: var(--orange-light); }
+
+  @media (max-width: 540px) {
+    .welcome-showcase { flex-wrap: wrap; padding: 14px 16px; }
+    .welcome-showcase__btn { width: 100%; }
+  }
 
   /* ── PROGRESS BAR ── */
   .progress-bar-wrap {
@@ -712,15 +755,20 @@
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <button class="audio-btn" onclick="showHistory()" id="historyBtn" style="display:none;">📋 History</button>
-      <select class="audio-btn track-select" id="welcomeTrackSelect" aria-label="Choose audio track" onchange="onWelcomeTrackChange()">
-        <option value="upload_welcome.ogg">Welcome Message</option>
-        <option value="audio_country.mp3">Country</option>
-        <option value="audio_hiphop.mp3">Hip Hop</option>
-      </select>
-      <button class="audio-btn" onclick="playWelcome()" id="audioBtn">🎙 Welcome</button>
+      <button class="audio-btn" id="countryBtn" onclick="togglePlayer('country')">Country</button>
+      <button class="audio-btn" id="hiphopBtn" onclick="togglePlayer('hiphop')">Hip-Hop</button>
     </div>
   </div>
 </header>
+
+<div class="welcome-showcase">
+  <div class="welcome-showcase__icon">🎙️</div>
+  <div class="welcome-showcase__text">
+    <strong>New here?</strong>
+    <span>Press play for a quick walkthrough of the portal.</span>
+  </div>
+  <button class="welcome-showcase__btn" id="welcomeBtn" onclick="togglePlayer('welcome')">Play Welcome Message</button>
+</div>
 
 <!-- PROGRESS BAR -->
 <div class="progress-bar-wrap">
@@ -1080,9 +1128,6 @@
   </div>
 </div>
 
-<!-- AUDIO (loaded dynamically) -->
-<audio id="welcomeAudio" preload="none"></audio>
-
 <script>
 // ═══════════════════════════════════════════════════════════
 // STATE
@@ -1214,9 +1259,6 @@ document.addEventListener('DOMContentLoaded', () => {
   addComplete();
   addTeam();
   addTruck();
-
-  // Set audio src from whichever track is selected
-  document.getElementById('welcomeAudio').src = document.getElementById('welcomeTrackSelect').value;
 
   updateProgress();
   updateSendBtn();
@@ -1643,29 +1685,65 @@ function showToast(msg) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// AUDIO WELCOME
+// AUDIO — three independent players (Country, Hip-Hop, Welcome
+// Message), only one plays at a time.
 // ═══════════════════════════════════════════════════════════
-function playWelcome() {
-  const audio = document.getElementById('welcomeAudio');
-  if (audio.paused) {
-    audio.play().catch(() => {});
-    document.getElementById('audioBtn').textContent = '⏹ Stop';
-  } else {
-    audio.pause();
-    audio.currentTime = 0;
-    document.getElementById('audioBtn').textContent = '🎙 Welcome';
-  }
-}
-document.getElementById('welcomeAudio').addEventListener('ended', () => {
-  document.getElementById('audioBtn').textContent = '🎙 Welcome';
-});
+const audioPlayers = {
+  country: { file: 'audio_country.mp3', loop: true,  audio: null, btnId: 'countryBtn', defaultLabel: 'Country' },
+  hiphop:  { file: 'audio_hiphop.mp3',   loop: true,  audio: null, btnId: 'hiphopBtn',  defaultLabel: 'Hip-Hop' },
+  welcome: { file: 'upload_welcome.ogg', loop: false, audio: null, btnId: 'welcomeBtn', defaultLabel: 'Play Welcome Message' },
+};
+let currentlyPlaying = null;
 
-function onWelcomeTrackChange() {
-  const audio = document.getElementById('welcomeAudio');
-  audio.pause();
-  audio.currentTime = 0;
-  audio.src = document.getElementById('welcomeTrackSelect').value;
-  document.getElementById('audioBtn').textContent = '🎙 Welcome';
+function stopPlayer(key) {
+  const p = audioPlayers[key];
+  if (p.audio) {
+    p.audio.pause();
+    p.audio.currentTime = 0;
+  }
+  setPlayerState(key, false);
+}
+
+function togglePlayer(key) {
+  const p = audioPlayers[key];
+  if (!p) return;
+
+  if (currentlyPlaying === key) {
+    stopPlayer(key);
+    currentlyPlaying = null;
+    return;
+  }
+
+  if (currentlyPlaying) stopPlayer(currentlyPlaying);
+
+  if (!p.audio) {
+    p.audio = new Audio(p.file);
+    p.audio.loop = p.loop;
+    p.audio.addEventListener('ended', () => {
+      if (currentlyPlaying === key) {
+        currentlyPlaying = null;
+        setPlayerState(key, false);
+      }
+    });
+  }
+
+  p.audio.play()
+    .then(() => {
+      currentlyPlaying = key;
+      setPlayerState(key, true);
+    })
+    .catch((e) => {
+      console.warn(key + ' play failed:', e);
+      document.getElementById(p.btnId).textContent = 'Unavailable';
+    });
+}
+
+function setPlayerState(key, playing) {
+  const p = audioPlayers[key];
+  const btn = document.getElementById(p.btnId);
+  if (!btn) return;
+  btn.classList.toggle('active', playing);
+  btn.textContent = playing ? 'Stop' : p.defaultLabel;
 }
 
 // ═══════════════════════════════════════════════════════════
