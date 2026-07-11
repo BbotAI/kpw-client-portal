@@ -58,7 +58,8 @@
     justify-content: space-between;
     height: 60px;
   }
-  .logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; flex-shrink: 1; }
+  .logo-info { min-width: 0; }
   .logo-badge {
     background: var(--orange);
     color: #fff;
@@ -68,8 +69,14 @@
     border-radius: 6px;
     letter-spacing: 0.5px;
   }
-  .logo-text { font-size: 15px; font-weight: 600; color: var(--text); }
-  .logo-sub { font-size: 11px; color: var(--muted); display: block; line-height: 1; }
+  .logo-text {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
+  }
+  .logo-sub {
+    font-size: 11px; color: var(--muted); display: block; line-height: 1.3; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
   .audio-btn {
     background: rgba(230,126,34,0.15);
     border: 1px solid var(--orange);
@@ -89,6 +96,10 @@
   }
 
   /* ── Welcome message showcase ─────────────────────────────────────────── */
+  @keyframes welcome-glow-pulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(230,126,34,0.25); border-color: rgba(230,126,34,0.35); }
+    50%      { box-shadow: 0 0 26px rgba(230,126,34,0.55), 0 0 10px rgba(230,126,34,0.25); border-color: rgba(230,126,34,0.75); }
+  }
   .welcome-showcase {
     max-width: 860px;
     width: calc(100% - 40px);
@@ -101,6 +112,7 @@
     background: rgba(230, 126, 34, 0.08);
     border: 1.5px solid rgba(230, 126, 34, 0.35);
     border-radius: var(--radius);
+    animation: welcome-glow-pulse 2.8s ease-in-out infinite;
   }
   .welcome-showcase__icon { font-size: 22px; flex-shrink: 0; }
   .welcome-showcase__text {
@@ -762,12 +774,12 @@
   <div class="header-inner">
     <div class="logo-wrap">
       <div class="logo-badge">KPW</div>
-      <div>
+      <div class="logo-info">
         <span class="logo-text">Client Portal</span>
         <span class="logo-sub">Kansas Prairie Webworks</span>
       </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;">
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
       <button class="audio-btn" onclick="showHistory()" id="historyBtn" style="display:none;">📋 History</button>
       <button class="audio-btn" id="countryBtn" onclick="togglePlayer('country')">Country</button>
       <button class="audio-btn" id="hiphopBtn" onclick="togglePlayer('hiphop')">Hip-Hop</button>
