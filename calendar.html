@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Content Calendar — Kansas Prairie Webworks</title>
+<style>
+  :root {
+    --dark: #0a0f1e;
+    --darker: #060a15;
+    --card: #111827;
+    --border: #1e293b;
+    --orange: #E67E22;
+    --orange-light: #F39C12;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --green: #27ae60;
+    --red: #ef4444;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── HEADER — matches portal header exactly ── */
+  .header {
+    background: linear-gradient(135deg, #0f1a2e 0%, #1a2540 100%);
+    border-bottom: 2px solid var(--orange);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .logo-badge {
+    background: var(--orange);
+    color: #fff;
+    font-weight: 900;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  .logo-text { font-size: 15px; font-weight: 600; color: var(--text); display: block; }
+  .logo-sub  { font-size: 11px; color: var(--muted); display: block; line-height: 1.3; margin-top: 2px; }
+  .back-link {
+    background: none; border: none; color: var(--orange); font-size: 13px;
+    cursor: pointer; padding: 6px 10px;
+  }
+
+  .main { max-width: 700px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  /* ── Welcome card ── */
+  .welcome-card {
+    background: var(--card);
+    border-left: 4px solid var(--orange);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .welcome-card h1 { font-size: 18px; font-weight: 800; margin-bottom: 8px; color: #fff; }
+  .welcome-card p { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  .welcome-card .legend { font-size: 13px; margin-top: 10px; }
+  .welcome-card .legend div { margin-bottom: 4px; }
+  .welcome-card a { color: var(--orange); text-decoration: none; font-weight: 700; }
+
+  /* ── Month navigation ── */
+  .month-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .month-nav button {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 600;
+    cursor: pointer; min-height: 44px;
+  }
+  .month-nav button:hover { border-color: var(--orange); }
+  .month-nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .month-label { font-size: 17px; font-weight: 800; color: var(--orange); }
+
+  /* ── Calendar grid ── */
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .cal-dow {
+    text-align: center; font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px; padding-bottom: 6px;
+  }
+  .cal-day {
+    min-height: 44px;
+    min-width: 44px;
+    border-radius: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 6px;
+    position: relative;
+  }
+  .cal-day.blank { background: transparent; border: none; }
+  .cal-day-num { font-size: 14px; color: #475569; font-weight: 600; }
+  .cal-day.today .cal-day-num { text-decoration: underline; text-decoration-color: #fff; }
+
+  /* Orange/green days: navy text, not white — white-on-orange (#e67e22 @
+     90%) computes to 3.41:1 and white-on-green (#27ae60) to 2.87:1, both
+     below the required 4.5:1. Navy (var(--dark), the same token already
+     used for body background elsewhere in this portal) gives 5.59:1 and
+     6.65:1 respectively — computed, not assumed, before shipping. */
+  .cal-day.has-orange {
+    background: rgba(230,126,34,0.9);
+    border-color: rgba(230,126,34,0.9);
+    cursor: pointer;
+  }
+  .cal-day.has-orange .cal-day-num { color: var(--dark); font-weight: 800; font-size: 18px; }
+  .cal-day.has-green {
+    background: var(--green);
+    border-color: var(--green);
+    cursor: pointer;
+  }
+  .cal-day.has-green .cal-day-num { color: var(--dark); font-weight: 800; font-size: 18px; }
+  .cal-day.has-orange:hover, .cal-day.has-green:hover { filter: brightness(1.08); }
+
+  /* ── Day Detail sheet — reuses the portal's existing modal pattern ── */
+  .dd-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    z-index: 500; align-items: flex-end; justify-content: center;
+  }
+  .dd-overlay.open { display: flex; }
+  @media (min-width: 640px) {
+    .dd-overlay { align-items: center; }
+  }
+  .dd-sheet {
+    background: var(--card); border: 2px solid var(--orange);
+    border-radius: 14px 14px 0 0; padding: 20px; max-width: 480px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+  }
+  @media (min-width: 640px) {
+    .dd-sheet { border-radius: 14px; }
+  }
+  .dd-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .dd-header h2 { font-size: 16px; font-weight: 800; color: #fff; }
+  .dd-close { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 4px 8px; }
+  .dd-post {
+    border-top: 1px solid var(--border); padding: 16px 0;
+  }
+  .dd-post:first-of-type { border-top: none; padding-top: 0; }
+  .dd-plat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .dd-badge {
+    display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 10px;
+    font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .dd-badge.gbp  { background: #0d3040; color: #38bdf8; }
+  .dd-badge.fb   { background: #1a2860; color: #93c5fd; }
+  .dd-badge.blog { background: #14432a; color: #4ade80; }
+  .dd-plat-name { font-size: 14px; font-weight: 700; color: #fff; }
+  .dd-time { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .dd-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
+  @media (min-width: 640px) { .dd-img { max-height: 300px; } }
+  .dd-img-placeholder {
+    font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 10px;
+  }
+  .dd-content { font-size: 14px; color: var(--text); line-height: 1.7; white-space: pre-wrap; }
+  .dd-textarea {
+    width: 100%; min-height: 140px; background: var(--darker); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 14px; line-height: 1.7; padding: 10px;
+    font-family: inherit; resize: vertical;
+  }
+  .dd-textarea:focus { outline: none; border-color: var(--orange); }
+  .dd-actions { display: flex; gap: 10px; margin-top: 12px; }
+  .dd-btn {
+    flex: 1; border: none; border-radius: 8px; padding: 12px; font-size: 14px;
+    font-weight: 700; cursor: pointer; min-height: 44px;
+  }
+  .dd-btn-edit    { background: var(--darker); border: 1px solid var(--border); color: var(--text); }
+  .dd-btn-approve { background: var(--green); color: #fff; }
+  .dd-btn-save    { background: var(--orange); color: #fff; }
+  .dd-btn-cancel  { background: var(--darker); border: 1px solid var(--border); color: var(--text); }
+  .dd-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .dd-approved { color: var(--green); font-weight: 700; font-size: 14px; }
+
+  /* ── Lightbox ── */
+  .lightbox {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+    z-index: 600; align-items: center; justify-content: center; padding: 20px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+
+  /* ── States ── */
+  .state-msg {
+    text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; line-height: 1.8;
+  }
+  .spinner {
+    width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--orange);
+    border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; top: 40%; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1e293b; border: 2px solid var(--orange); color: #fff;
+    padding: 16px 24px; border-radius: 12px; font-size: 14px; font-weight: 600;
+    z-index: 9999; opacity: 0; transition: all 0.3s; text-align: center;
+    max-width: 320px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.5); pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <div class="logo-badge">KPW</div>
+      <div>
+        <span class="logo-text">Content Calendar</span>
+        <span class="logo-sub">Kansas Prairie Webworks</span>
+      </div>
+    </div>
+    <button class="back-link" onclick="window.location.href='index.html'">&larr; Back</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Loading state -->
+  <div class="state-msg" id="loading-state">
+    <div class="spinner"></div>
+    Loading your calendar...
+  </div>
+
+  <!-- Error / not-authenticated state -->
+  <div class="state-msg" id="error-state" style="display:none;">
+    <p id="error-msg">Something went wrong loading your calendar.<br>Please refresh the page or contact Kaleb: <a href="tel:7855777695" style="color:var(--orange);">785-577-7695</a></p>
+  </div>
+
+  <!-- Main content -->
+  <div id="calendar-content" style="display:none;">
+
+    <div class="welcome-card">
+      <h1>👋 Welcome to Your Content Calendar, <span id="welcome-name">there</span></h1>
+      <p>Here's what's coming up for your business online.</p>
+      <div class="legend">
+        <div>🟠 <strong style="color:#fff;">Orange</strong> days have posts ready for your review — tap to see them and give the go-ahead.</div>
+        <div>🟢 <strong style="color:#fff;">Green</strong> days are all set — you've approved everything scheduled that day.</div>
+      </div>
+      <p style="margin-top:10px;">That's it. No orange days means nothing needs your attention right now.<br>
+      Questions? Call or text Kaleb: <a href="tel:7855777695">785-577-7695</a></p>
+    </div>
+
+    <div class="month-nav">
+      <button id="btn-prev" onclick="changeMonth(-1)">&larr; Prev</button>
+      <span class="month-label" id="month-label">—</span>
+      <button id="btn-next" onclick="changeMonth(1)">Next &rarr;</button>
+    </div>
+
+    <div class="cal-grid" id="cal-dow-row">
+      <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div>
+      <div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+
+    <div class="state-msg" id="empty-state" style="display:none;">
+      📅 Nothing scheduled yet for <span id="empty-month">this month</span><br><br>
+      Check back soon — your content calendar fills up as posts are prepared for you.<br>
+      Questions? Call or text Kaleb: <a href="tel:7855777695" style="color:var(--orange);">785-577-7695</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Day Detail sheet -->
+<div class="dd-overlay" id="dd-overlay" onclick="if(event.target===this) closeDayDetail()">
+  <div class="dd-sheet">
+    <div class="dd-header">
+      <h2 id="dd-date">—</h2>
+      <button class="dd-close" onclick="closeDayDetail()">&times;</button>
+    </div>
+    <div id="dd-posts"></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// AUTH — this portal has no real session/token. The only session
+// mechanism it has is: localStorage holds the business name + email the
+// client typed in on index.html, and verifyClient re-confirms them fresh
+// against Agency Brain. calendar.html follows the exact same pattern —
+// a clientId in the URL is a display-only convenience for a faster
+// initial paint, never the actual auth boundary. If localStorage is
+// empty or verifyClient doesn't come back verified, this redirects to
+// the portal login — calendar data is never shown to an unverified
+// request.
+// ═══════════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnHiCoiuJSBcDp5yIdE-oBSh57wS4hXqUKGrvk7bxe-8UpD7cNfejpTeJIjxwF4XIz/exec';
+
+let verifiedClientId = '';
+let clientDisplayName = '';
+let currentYear, currentMonth; // currentMonth is 1-12
+let monthPosts = [];
+let dayApproveState = {}; // dateStr -> true/false, tracked client-side after an approve so the day can flip to green without a full reload
+
+async function fetchWithTimeout(url, options, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const resp = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return resp;
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+async function fetchWithRetry(url, options, retries = 2, timeoutMs = 15000) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fetchWithTimeout(url, options, timeoutMs);
+    } catch (e) {
+      if (i === retries) throw e;
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function boot() {
+  const params = new URLSearchParams(window.location.search);
+  const urlName = params.get('name') || '';
+  if (urlName) document.getElementById('welcome-name').textContent = urlName;
+
+  const bizName = localStorage.getItem('kpw_biz_name');
+  const email   = localStorage.getItem('kpw_client_email');
+  if (!bizName || !email) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  try {
+    const resp = await fetchWithRetry(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'verifyClient', businessName: bizName, email: email })
+    });
+    const data = await resp.json();
+    if (!data.verified || !data.clientId) {
+      window.location.href = 'index.html';
+      return;
+    }
+    verifiedClientId = data.clientId;
+    clientDisplayName = urlName || bizName;
+    document.getElementById('welcome-name').textContent = clientDisplayName;
+
+    const now = new Date();
+    currentYear = now.getFullYear();
+    currentMonth = now.getMonth() + 1;
+    await loadMonth();
+  } catch (e) {
+    showError('Something went wrong loading your calendar.<br>Please refresh the page or contact Kaleb: <a href="tel:7855777695" style="color:var(--orange);">785-577-7695</a>');
+  }
+}
+
+function showError(html) {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('calendar-content').style.display = 'none';
+  document.getElementById('error-state').style.display = 'block';
+  document.getElementById('error-msg').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MONTH LOADING
+// ═══════════════════════════════════════════════════════════
+async function loadMonth() {
+  document.getElementById('loading-state').style.display = 'block';
+  document.getElementById('calendar-content').style.display = 'none';
+  document.getElementById('error-state').style.display = 'none';
+  document.getElementById('btn-prev').disabled = true;
+  document.getElementById('btn-next').disabled = true;
+
+  try {
+    const url = APPS_SCRIPT_URL + '?action=getClientQueueForMonth&clientId=' +
+      encodeURIComponent(verifiedClientId) + '&year=' + currentYear + '&month=' + currentMonth;
+    const resp = await fetchWithRetry(url, { method: 'GET' });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+
+    monthPosts = data.posts || [];
+    dayApproveState = {};
+    renderMonth();
+
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('calendar-content').style.display = 'block';
+  } catch (e) {
+    showError('Something went wrong loading your calendar.<br>Please refresh the page or contact Kaleb: <a href="tel:7855777695" style="color:var(--orange);">785-577-7695</a>');
+  } finally {
+    document.getElementById('btn-prev').disabled = false;
+    document.getElementById('btn-next').disabled = false;
+  }
+}
+
+function changeMonth(delta) {
+  currentMonth += delta;
+  if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+  if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+  loadMonth();
+}
+
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function renderMonth() {
+  document.getElementById('month-label').textContent = MONTH_NAMES[currentMonth - 1] + ' ' + currentYear;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const firstOfMonth = new Date(currentYear, currentMonth - 1, 1);
+  const startDow = firstOfMonth.getDay(); // 0=Sun
+  const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+  const today = new Date();
+  const todayStr = today.getFullYear() + '-' + p2(today.getMonth() + 1) + '-' + p2(today.getDate());
+
+  // Group posts by day (YYYY-MM-DD from scheduledDate)
+  const byDay = {};
+  monthPosts.forEach(post => {
+    const d = new Date(post.scheduledDate);
+    const key = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+    (byDay[key] = byDay[key] || []).push(post);
+  });
+
+  for (let i = 0; i < startDow; i++) {
+    const blank = document.createElement('div');
+    blank.className = 'cal-day blank';
+    grid.appendChild(blank);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = currentYear + '-' + p2(currentMonth) + '-' + p2(day);
+    const cell = document.createElement('div');
+    cell.className = 'cal-day';
+    if (dateStr === todayStr) cell.classList.add('today');
+
+    const posts = byDay[dateStr] || [];
+    if (posts.length) {
+      const allApproved = dayApproveState[dateStr] !== undefined
+        ? dayApproveState[dateStr]
+        : posts.every(p => p.status === 'Client Approved' || p.status === 'Client Edited');
+      cell.classList.add(allApproved ? 'has-green' : 'has-orange');
+      cell.onclick = () => openDayDetail(dateStr, posts);
+    }
+
+    cell.innerHTML = '<span class="cal-day-num">' + day + '</span>';
+    grid.appendChild(cell);
+  }
+
+  document.getElementById('empty-state').style.display = monthPosts.length ? 'none' : 'block';
+  document.getElementById('cal-grid').style.display = monthPosts.length ? 'grid' : 'none';
+  document.getElementById('cal-dow-row').style.display = monthPosts.length ? 'grid' : 'none';
+  document.getElementById('empty-month').textContent = MONTH_NAMES[currentMonth - 1] + ' ' + currentYear;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DAY DETAIL SHEET
+// ═══════════════════════════════════════════════════════════
+const DOW_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function openDayDetail(dateStr, posts) {
+  const d = new Date(dateStr + 'T00:00:00');
+  document.getElementById('dd-date').textContent = DOW_NAMES[d.getDay()] + ', ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getDate();
+
+  const wrap = document.getElementById('dd-posts');
+  wrap.innerHTML = '';
+  posts.forEach(post => wrap.appendChild(buildPostBlock(post, dateStr)));
+
+  document.getElementById('dd-overlay').classList.add('open');
+}
+
+function closeDayDetail() {
+  document.getElementById('dd-overlay').classList.remove('open');
+}
+
+function platformDisplay(p) {
+  if (p === 'GBP') return { cls: 'gbp', label: 'Google Business Post' };
+  if (p === 'Facebook') return { cls: 'fb', label: 'Facebook Post' };
+  return { cls: 'blog', label: 'Blog Post' };
+}
+
+function buildPostBlock(post, dateStr) {
+  const el = document.createElement('div');
+  el.className = 'dd-post';
+  el.id = 'dd-post-' + post.queueId;
+
+  const plat = platformDisplay(post.platform);
+  const d = new Date(post.scheduledDate);
+  const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const isApproved = post.status === 'Client Approved' || post.status === 'Client Edited';
+
+  let imgHtml = '';
+  if (post.imageUrl) {
+    imgHtml = '<img class="dd-img" src="' + esc(post.imageUrl) + '" alt="" onclick="openLightbox(\'' + esc(post.imageUrl) + '\')">';
+  } else {
+    imgHtml = '<div class="dd-img-placeholder">No image for this post</div>';
+  }
+
+  el.innerHTML =
+    '<div class="dd-plat-row"><span class="dd-badge ' + plat.cls + '">' + post.platform + '</span>' +
+    '<span class="dd-plat-name">' + plat.label + '</span></div>' +
+    '<div class="dd-time">Scheduled: ' + timeStr + '</div>' +
+    imgHtml +
+    '<div class="dd-content-wrap"></div>';
+
+  const contentWrap = el.querySelector('.dd-content-wrap');
+
+  if (isApproved) {
+    const approvedMsg = document.createElement('div');
+    approvedMsg.className = 'dd-approved';
+    approvedMsg.textContent = '✅ Approved — this post is scheduled to go live.';
+    contentWrap.appendChild(approvedMsg);
+  } else {
+    renderViewMode(contentWrap, post, dateStr);
+  }
+
+  return el;
+}
+
+function renderViewMode(container, post, dateStr) {
+  container.innerHTML =
+    '<div class="dd-content">' + esc(post.content) + '</div>' +
+    '<div class="dd-actions">' +
+      '<button class="dd-btn dd-btn-edit" onclick="startEdit(\'' + post.queueId + '\')">EDIT</button>' +
+      '<button class="dd-btn dd-btn-approve" id="approve-btn-' + post.queueId + '" onclick="approvePost(\'' + post.queueId + '\', \'' + dateStr + '\')">&#10003; APPROVE</button>' +
+    '</div>';
+}
+
+function startEdit(queueId) {
+  const post = monthPosts.find(p => p.queueId === queueId);
+  if (!post) return;
+  const container = document.querySelector('#dd-post-' + queueId + ' .dd-content-wrap');
+  container.innerHTML =
+    '<textarea class="dd-textarea" id="edit-text-' + queueId + '">' + escAttr(post.content) + '</textarea>' +
+    '<div class="dd-actions">' +
+      '<button class="dd-btn dd-btn-cancel" onclick="cancelEdit(\'' + queueId + '\', \'' + currentDateStrFor(post) + '\')">Cancel</button>' +
+      '<button class="dd-btn dd-btn-save" id="save-btn-' + queueId + '" onclick="saveAndApprove(\'' + queueId + '\', \'' + currentDateStrFor(post) + '\')">Save & Approve</button>' +
+    '</div>';
+}
+
+function currentDateStrFor(post) {
+  const d = new Date(post.scheduledDate);
+  return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+}
+
+function cancelEdit(queueId, dateStr) {
+  const post = monthPosts.find(p => p.queueId === queueId);
+  const container = document.querySelector('#dd-post-' + queueId + ' .dd-content-wrap');
+  renderViewMode(container, post, dateStr);
+}
+
+async function approvePost(queueId, dateStr) {
+  const btn = document.getElementById('approve-btn-' + queueId);
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+  try {
+    const resp = await fetchWithRetry(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'updateQueueContent', queueId: queueId, clientId: verifiedClientId, queueAction: 'approve' })
+    });
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.error || 'Approve failed');
+
+    const post = monthPosts.find(p => p.queueId === queueId);
+    if (post) post.status = 'Client Approved';
+
+    const container = document.querySelector('#dd-post-' + queueId + ' .dd-content-wrap');
+    container.innerHTML = '<div class="dd-approved">✅ Approved — this post is scheduled to go live.</div>';
+
+    showToast('Post approved — you’re all set for ' + MONTH_NAMES[new Date(dateStr + 'T00:00:00').getMonth()] + ' ' + new Date(dateStr + 'T00:00:00').getDate() + '!');
+    refreshDayColor(dateStr);
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = '✓ APPROVE'; }
+    showToast('Could not approve — please try again.');
+  }
+}
+
+async function saveAndApprove(queueId, dateStr) {
+  const btn = document.getElementById('save-btn-' + queueId);
+  const textarea = document.getElementById('edit-text-' + queueId);
+  const newContent = textarea.value;
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  try {
+    const resp = await fetchWithRetry(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'updateQueueContent', queueId: queueId, clientId: verifiedClientId, queueAction: 'edit', content: newContent })
+    });
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.error || 'Save failed');
+
+    const post = monthPosts.find(p => p.queueId === queueId);
+    if (post) { post.content = newContent; post.status = 'Client Edited'; }
+
+    // Client never sees "Client Edited" as a status — same green confirmation as a plain approve.
+    const container = document.querySelector('#dd-post-' + queueId + ' .dd-content-wrap');
+    container.innerHTML = '<div class="dd-approved">✅ Saved & Approved</div>';
+
+    showToast('Saved — you’re all set for ' + MONTH_NAMES[new Date(dateStr + 'T00:00:00').getMonth()] + ' ' + new Date(dateStr + 'T00:00:00').getDate() + '!');
+    refreshDayColor(dateStr);
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save & Approve'; }
+    showToast('Could not save — please try again.');
+  }
+}
+
+function refreshDayColor(dateStr) {
+  const postsThatDay = monthPosts.filter(p => currentDateStrFor(p) === dateStr);
+  const allApproved = postsThatDay.every(p => p.status === 'Client Approved' || p.status === 'Client Edited');
+  dayApproveState[dateStr] = allApproved;
+  renderMonth();
+}
+
+function openLightbox(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function p2(n) { return n < 10 ? '0' + n : String(n); }
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function escAttr(s) { return esc(s); }
+
+boot();
+</script>
+</body>
+</html>

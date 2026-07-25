@@ -842,6 +842,12 @@
           <div class="cc-desc">Share photos from your completed jobs with descriptions</div>
           <button class="cc-btn">Choose This →</button>
         </div>
+        <div class="choice-card" onclick="goToContentCalendar()">
+          <span class="cc-icon">📅</span>
+          <div class="cc-title">CONTENT CALENDAR</div>
+          <div class="cc-desc">Review and approve your scheduled posts. Tap to see what's coming up and give the go-ahead.</div>
+          <button class="cc-btn">View My Calendar →</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2491,6 +2497,20 @@ function goToProjectPhotos() {
   document.getElementById('service-selector').style.display         = 'block';
   document.getElementById('historyBtn').style.display               = 'inline-block';
   loadServices();
+}
+
+// Content Calendar is a separate page (calendar.html), not an in-page
+// section like the other two — this portal has no real session/token, so
+// clientId in the URL is a display-only convenience (a friendlier initial
+// paint of the client's name while the page re-verifies). calendar.html
+// re-runs verifyClient itself using the same localStorage-saved business
+// name/email before it will show any calendar data — never trusts the URL
+// param as the actual auth boundary.
+function goToContentCalendar() {
+  var name = (document.getElementById('businessName').value || '').trim();
+  window.location.href = 'calendar.html' +
+    '?clientId=' + encodeURIComponent(verifiedClientId) +
+    '&name=' + encodeURIComponent(name);
 }
 
 function goToWebsitePhotos() {
