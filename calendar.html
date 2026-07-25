@@ -529,9 +529,9 @@ function buildPostBlock(post, dateStr) {
 
   let imgHtml = '';
   if (post.imageUrl) {
-    imgHtml = '<img class="dd-img" src="' + esc(post.imageUrl) + '" alt="" onclick="openLightbox(\'' + esc(post.imageUrl) + '\')">';
+    imgHtml = '<img class="dd-img" id="dd-img-' + post.queueId + '" src="' + esc(post.imageUrl) + '" alt="" onclick="openLightbox(this.src)">';
   } else {
-    imgHtml = '<div class="dd-img-placeholder">No image for this post</div>';
+    imgHtml = '<div class="dd-img-placeholder" id="dd-img-' + post.queueId + '">No image for this post</div>';
   }
 
   el.innerHTML =
@@ -564,16 +564,87 @@ function renderViewMode(container, post, dateStr) {
     '</div>';
 }
 
+// queueId -> newly-uploaded Cloudinary URL, only set if the client actually
+// swapped the image during this edit session. Cleared on cancel/save.
+const pendingImageUrl = {};
+
 function startEdit(queueId) {
   const post = monthPosts.find(p => p.queueId === queueId);
   if (!post) return;
   const container = document.querySelector('#dd-post-' + queueId + ' .dd-content-wrap');
   container.innerHTML =
     '<textarea class="dd-textarea" id="edit-text-' + queueId + '">' + escAttr(post.content) + '</textarea>' +
+    '<input type="file" accept="image/*" capture="environment" id="image-file-' + queueId + '" style="display:none;" onchange="onImageFileSelected(\'' + queueId + '\')">' +
+    '<button class="dd-btn dd-btn-cancel" style="margin-top:8px;width:100%;" id="change-img-btn-' + queueId + '" onclick="document.getElementById(\'image-file-' + queueId + '\').click()">&#128247; Change Image</button>' +
     '<div class="dd-actions">' +
       '<button class="dd-btn dd-btn-cancel" onclick="cancelEdit(\'' + queueId + '\', \'' + currentDateStrFor(post) + '\')">Cancel</button>' +
       '<button class="dd-btn dd-btn-save" id="save-btn-' + queueId + '" onclick="saveAndApprove(\'' + queueId + '\', \'' + currentDateStrFor(post) + '\')">Save & Approve</button>' +
     '</div>';
+}
+
+async function onImageFileSelected(queueId) {
+  const input = document.getElementById('image-file-' + queueId);
+  const file = input.files[0];
+  if (!file) return;
+  const btn = document.getElementById('change-img-btn-' + queueId);
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Uploading…';
+
+  try {
+    // Same unsigned-preset Cloudinary pattern used by Project Photos uploads.
+    const folder = 'kpw-clients/' + verifiedClientId + '/queue-images/' + queueId + '/' + Date.now();
+    const url = await uploadToCloudinary(file, folder);
+    pendingImageUrl[queueId] = url;
+
+    // Swap the preview in place — replace a placeholder div with a real
+    // img, or just update src if one already existed.
+    const existing = document.getElementById('dd-img-' + queueId);
+    if (existing && existing.tagName === 'IMG') {
+      existing.src = url;
+    } else if (existing) {
+      const img = document.createElement('img');
+      img.className = 'dd-img';
+      img.id = 'dd-img-' + queueId;
+      img.src = url;
+      img.onclick = function() { openLightbox(this.src); };
+      existing.replaceWith(img);
+    }
+
+    btn.textContent = '✅ Image updated';
+  } catch (e) {
+    btn.textContent = originalLabel;
+    showToast('Could not upload image — please try again.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// Same Cloudinary unsigned-upload pattern as the main portal's Project
+// Photos flow (uploadToCloudinary in index.html) — duplicated here since
+// calendar.html is a separate, self-contained page.
+const CLOUDINARY_CLOUD = 'dxqhuoxzn';
+const CLOUDINARY_PRESET = 'kpw-unsigned';
+async function uploadToCloudinary(file, folder, timeoutMs = 30000) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  formData.append('folder', folder);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', {
+      method: 'POST', body: formData, signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('Upload failed');
+    const data = await res.json();
+    return data.secure_url;
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Upload taking too long — tap to try again');
+    throw e;
+  }
 }
 
 function currentDateStrFor(post) {
@@ -585,6 +656,24 @@ function cancelEdit(queueId, dateStr) {
   const post = monthPosts.find(p => p.queueId === queueId);
   const container = document.querySelector('#dd-post-' + queueId + ' .dd-content-wrap');
   renderViewMode(container, post, dateStr);
+
+  // Revert any unsaved image swap preview back to the real stored image
+  // (including reverting to "no image" if there never was one).
+  if (pendingImageUrl[queueId]) {
+    delete pendingImageUrl[queueId];
+    const el = document.getElementById('dd-img-' + queueId);
+    if (el) {
+      if (post.imageUrl) {
+        if (el.tagName === 'IMG') { el.src = post.imageUrl; }
+      } else if (el.tagName === 'IMG') {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'dd-img-placeholder';
+        placeholder.id = 'dd-img-' + queueId;
+        placeholder.textContent = 'No image for this post';
+        el.replaceWith(placeholder);
+      }
+    }
+  }
 }
 
 async function approvePost(queueId, dateStr) {
@@ -618,19 +707,27 @@ async function saveAndApprove(queueId, dateStr) {
   const btn = document.getElementById('save-btn-' + queueId);
   const textarea = document.getElementById('edit-text-' + queueId);
   const newContent = textarea.value;
+  const newImageUrl = pendingImageUrl[queueId] || '';
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
   try {
+    const payload = { action: 'updateQueueContent', queueId: queueId, clientId: verifiedClientId, queueAction: 'edit', content: newContent };
+    if (newImageUrl) payload.imageUrl = newImageUrl;
     const resp = await fetchWithRetry(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'updateQueueContent', queueId: queueId, clientId: verifiedClientId, queueAction: 'edit', content: newContent })
+      body: JSON.stringify(payload)
     });
     const data = await resp.json();
     if (!data.success) throw new Error(data.error || 'Save failed');
 
+    delete pendingImageUrl[queueId];
     const post = monthPosts.find(p => p.queueId === queueId);
-    if (post) { post.content = newContent; post.status = 'Client Edited'; }
+    if (post) {
+      post.content = newContent;
+      post.status = 'Client Edited';
+      if (newImageUrl) post.imageUrl = newImageUrl;
+    }
 
     // Client never sees "Client Edited" as a status — same green confirmation as a plain approve.
     const container = document.querySelector('#dd-post-' + queueId + ' .dd-content-wrap');

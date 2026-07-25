@@ -1842,9 +1842,16 @@ function updateCounter(el) {
 // ═══════════════════════════════════════════════════════════
 // SAVE TAB
 // ═══════════════════════════════════════════════════════════
+// No celebrate() here on purpose — this used to fire confetti/chime/toast
+// on every per-service "Mark as Done" tap (up to 7 times), which read to
+// non-tech clients as "you're finished" well before they'd actually hit
+// Save & Send to KPW below. That was the double-confirmation bug: this
+// premature celebration, then the real one in submitAll(). The tab still
+// visibly marks itself saved (checkmark, progress bar) — it just doesn't
+// pretend to be the finish line anymore. submitAll() is the only place
+// that celebrates now, paired with the full showSuccessOverlay() page.
 function saveTab(idx) {
   markTabSaved(idx);
-  celebrate();
   updateProgress();
 }
 
