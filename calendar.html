@@ -556,14 +556,26 @@ function buildPostBlock(post, dateStr) {
 }
 
 function renderViewMode(container, post, dateStr) {
+  // Scheduled means the curator already confirmed a publish time - there's
+  // nothing left to approve, so no Approve button; a confirmation line
+  // takes its place. Edit still shows, since the client can request a
+  // change right up until it actually posts. Pending Client Review (the
+  // only other status that ever reaches this function - Client
+  // Approved/Client Edited are handled earlier, in buildPostBlock's
+  // isApproved branch) keeps both buttons exactly as before.
+  const isScheduled = post.status === 'Scheduled';
+  const timeStr = new Date(post.scheduledDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const scheduledMsgHtml = isScheduled
+    ? '<div class="dd-approved">✅ Scheduled for ' + esc(timeStr) + ' — you\'re all set.</div>'
+    : '';
   const actionsHtml =
     '<div class="dd-actions">' +
       '<button class="dd-btn dd-btn-edit" onclick="startEdit(\'' + post.queueId + '\')">EDIT</button>' +
-      '<button class="dd-btn dd-btn-approve" id="approve-btn-' + post.queueId + '" onclick="approvePost(\'' + post.queueId + '\', \'' + dateStr + '\')">&#10003; APPROVE</button>' +
+      (isScheduled ? '' : '<button class="dd-btn dd-btn-approve" id="approve-btn-' + post.queueId + '" onclick="approvePost(\'' + post.queueId + '\', \'' + dateStr + '\')">&#10003; APPROVE</button>') +
     '</div>';
 
   if (post.platform === 'Blog') {
-    container.innerHTML = '<div class="dd-blog-iframe-wrap"></div>' + actionsHtml;
+    container.innerHTML = '<div class="dd-blog-iframe-wrap"></div>' + scheduledMsgHtml + actionsHtml;
     const iframe = document.createElement('iframe');
     iframe.setAttribute('sandbox', 'allow-same-origin');
     iframe.setAttribute('scrolling', 'auto');
@@ -592,7 +604,7 @@ function renderViewMode(container, post, dateStr) {
     return;
   }
 
-  container.innerHTML = '<div class="dd-content">' + esc(post.content) + '</div>' + actionsHtml;
+  container.innerHTML = '<div class="dd-content">' + esc(post.content) + '</div>' + scheduledMsgHtml + actionsHtml;
 }
 
 // queueId -> newly-uploaded Cloudinary URL, only set if the client actually
