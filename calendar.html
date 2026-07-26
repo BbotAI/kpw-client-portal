@@ -525,13 +525,7 @@ function buildPostBlock(post, dateStr) {
   const plat = platformDisplay(post.platform);
   const d = new Date(post.scheduledDate);
   const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  // 'Scheduled' means the curator already confirmed & locked in a publish
-  // time after the client approved it — treat it as approved too, or the
-  // Approve/Edit UI would still show for a post that's already past that
-  // point, and tapping Approve on it would (correctly) be rejected
-  // server-side by updateQueueContent_'s status precondition, surfacing as
-  // a confusing "Could not approve" error for something already approved.
-  const isApproved = post.status === 'Client Approved' || post.status === 'Client Edited' || post.status === 'Scheduled';
+  const isApproved = post.status === 'Client Approved' || post.status === 'Client Edited';
 
   let imgHtml = '';
   if (post.imageUrl) {
