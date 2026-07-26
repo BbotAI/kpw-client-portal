@@ -476,7 +476,7 @@ function renderMonth() {
     if (posts.length) {
       const allApproved = dayApproveState[dateStr] !== undefined
         ? dayApproveState[dateStr]
-        : posts.every(p => p.status === 'Client Approved' || p.status === 'Client Edited');
+        : posts.every(p => p.status === 'Client Approved' || p.status === 'Client Edited' || p.status === 'Scheduled');
       cell.classList.add(allApproved ? 'has-green' : 'has-orange');
       cell.onclick = () => openDayDetail(dateStr, posts);
     }
@@ -787,7 +787,7 @@ async function saveAndApprove(queueId, dateStr) {
 
 function refreshDayColor(dateStr) {
   const postsThatDay = monthPosts.filter(p => currentDateStrFor(p) === dateStr);
-  const allApproved = postsThatDay.every(p => p.status === 'Client Approved' || p.status === 'Client Edited');
+  const allApproved = postsThatDay.every(p => p.status === 'Client Approved' || p.status === 'Client Edited' || p.status === 'Scheduled');
   dayApproveState[dateStr] = allApproved;
   renderMonth();
 }
