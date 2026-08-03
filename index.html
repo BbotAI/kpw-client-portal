@@ -814,9 +814,11 @@
   <!-- BUSINESS NAME + EMAIL VERIFICATION -->
   <div class="biz-name-wrap">
     <label for="businessName">Your Business Name <span style="color:var(--red)">*</span></label>
-    <!-- Placeholder must never be a real client's name. This said "e.g.
-         Mike's Services LLC", which showed one client's business to every
-         other client who opened the portal. Keep example text generic. -->
+    <!-- Placeholder must never be a real client's name. This previously
+         used an actual client's business as the example, which showed it
+         to every other client who opened the portal. Keep it generic.
+         (Comments ship to the browser too, so don't name the client here
+         either.) -->
     <input type="text" id="businessName" placeholder="Your business name" required oninput="saveBizName()" onkeydown="if(event.key==='Enter')loadPortal()">
     <label for="clientEmail" style="margin-top:14px">YOUR BUSINESS EMAIL <span style="color:var(--red)">*</span></label>
     <input type="email" id="clientEmail" placeholder="The email you used when you registered with KPW" required oninput="saveClientEmail()" onkeydown="if(event.key==='Enter')loadPortal()">
