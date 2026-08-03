@@ -1,0 +1,5 @@
+# portal.kansasprairiewebworks.com is an operational tool, not public
+# content. Clients reach it from a link in their welcome email. Nothing
+# here belongs in a search index.
+User-agent: *
+Disallow: /
