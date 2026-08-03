@@ -1596,6 +1596,8 @@ async function loadPortal() {
 
     if (data.verified) {
       verifiedClientId = data.clientId || '';
+      // Authoritative slug from the Client ID — see getSlug().
+      verifiedClientSlug = data.clientSlug || '';
       applyServicePackageGating(data);
       document.getElementById('verifyErrorCard').style.display = 'none';
       btn.textContent = 'Portal Loaded ✓';
@@ -1631,7 +1633,30 @@ async function loadPortal() {
   }
 }
 
+/**
+ * The client's slug, as the Agency Brain knows it.
+ *
+ * This used to derive purely from the business name the client typed into
+ * the login box, which silently broke any client whose Client ID isn't a
+ * straight slugification of their name. buildClientId_ strips trailing
+ * entity suffixes (LLC, Inc, Corp, Co, Ltd…), so "Prairie Test Co" is
+ * stored as PRAIRIE_TEST while the typed name produced "prairie-test-co".
+ * updateClientPortal_ looks the client up by that slug and RETURNS
+ * SILENTLY when it finds no row — so project photos uploaded to Cloudinary
+ * fine, the Clients sheet's Image Library URLs stayed empty, the portal
+ * still showed its success confetti, and the History view (which reads the
+ * sheet, not Cloudinary) reported "no photos uploaded yet". Confirmed live
+ * 2026-08-03 with the first client whose name and ID diverged.
+ *
+ * verifyClient_ already returns the authoritative slug derived from the
+ * Client ID, so use that whenever we have it. The typed-name fallback is
+ * only for the brief window before verification returns, and for any
+ * deployment old enough not to send clientSlug back.
+ */
+var verifiedClientSlug = '';
+
 function getSlug() {
+  if (verifiedClientSlug) return verifiedClientSlug;
   return (document.getElementById('businessName').value || 'unknown')
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
