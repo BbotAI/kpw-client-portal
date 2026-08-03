@@ -832,20 +832,26 @@
     <div class="home-screen-wrap">
       <h2>What would you like to do?</h2>
       <p class="home-sub">Choose one to get started. You can do both.</p>
+      <!-- Cards are gated by the client's Service_Package, applied in
+           applyServicePackageGating() after verifyClient returns. Website
+           Photos only exists for packages that include a website; the
+           Content Calendar only for packages that actually post somewhere.
+           Project Photos is never hidden — every client's photos feed
+           content generation regardless of what they bought. -->
       <div class="choice-cards">
-        <div class="choice-card" onclick="goToWebsitePhotos()">
+        <div class="choice-card" id="card-website-photos" onclick="goToWebsitePhotos()">
           <span class="cc-icon">📸</span>
           <div class="cc-title">WEBSITE PHOTOS</div>
           <div class="cc-desc">Upload photos that will appear on your website pages</div>
           <button class="cc-btn">Choose This →</button>
         </div>
-        <div class="choice-card" onclick="goToProjectPhotos()">
+        <div class="choice-card" id="card-project-photos" onclick="goToProjectPhotos()">
           <span class="cc-icon">🏗️</span>
           <div class="cc-title">PROJECT PHOTOS</div>
           <div class="cc-desc">Share photos from your completed jobs with descriptions</div>
           <button class="cc-btn">Choose This →</button>
         </div>
-        <div class="choice-card" onclick="goToContentCalendar()">
+        <div class="choice-card" id="card-content-calendar" onclick="goToContentCalendar()">
           <span class="cc-icon">📅</span>
           <div class="cc-title">CONTENT CALENDAR</div>
           <div class="cc-desc">Review and approve your scheduled posts. Tap to see what's coming up and give the go-ahead.</div>
@@ -1590,6 +1596,7 @@ async function loadPortal() {
 
     if (data.verified) {
       verifiedClientId = data.clientId || '';
+      applyServicePackageGating(data);
       document.getElementById('verifyErrorCard').style.display = 'none';
       btn.textContent = 'Portal Loaded ✓';
       showHomeScreen();
@@ -2486,6 +2493,44 @@ function showSuccessOverlay(serviceName, sentItems) {
 // ═══════════════════════════════════════════════════════════
 // HOME SCREEN NAVIGATION
 // ═══════════════════════════════════════════════════════════
+/* ── Service_Package gating ───────────────────────────────────────────────
+   verifyClient now returns the client's package alongside clientId. A
+   client who bought GBP posting has no website, so a "Website Photos"
+   card that uploads into pages that don't exist is worse than useless —
+   it's a promise of something they didn't buy.
+
+   Fails OPEN on purpose: a response with no package (legacy client, or an
+   older Apps Script deployment that predates this field) shows everything,
+   exactly as the portal behaved before. Losing access to a section you've
+   been using is a much worse failure than briefly seeing one you don't
+   need, and this runs on real clients' phones.
+
+   Stored on window rather than localStorage — localStorage here is only a
+   convenience cache of the typed business name/email, and the package is
+   re-fetched on every verify anyway. Persisting it would just create a
+   stale copy that could outlive a package change. */
+var clientPackage = { servicePackage: '', platforms: [], hasWebsite: true };
+
+function applyServicePackageGating(data) {
+  clientPackage = {
+    servicePackage: (data && data.servicePackage) || '',
+    platforms:      (data && data.platforms) || [],
+    hasWebsite:     data && data.hasWebsite !== undefined ? !!data.hasWebsite : true
+  };
+
+  var hasPkg = !!clientPackage.servicePackage;
+  var showWebsite  = !hasPkg || clientPackage.hasWebsite;
+  var showCalendar = !hasPkg || clientPackage.platforms.length > 0;
+
+  var wsCard  = document.getElementById('card-website-photos');
+  var calCard = document.getElementById('card-content-calendar');
+  if (wsCard)  wsCard.style.display  = showWebsite  ? '' : 'none';
+  if (calCard) calCard.style.display = showCalendar ? '' : 'none';
+
+  // Project Photos is deliberately never hidden — those photos feed
+  // content generation for every package.
+}
+
 function showHomeScreen() {
   document.getElementById('home-screen').style.display              = 'block';
   document.getElementById('service-selector').style.display         = 'none';
