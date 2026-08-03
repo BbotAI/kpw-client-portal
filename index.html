@@ -814,7 +814,10 @@
   <!-- BUSINESS NAME + EMAIL VERIFICATION -->
   <div class="biz-name-wrap">
     <label for="businessName">Your Business Name <span style="color:var(--red)">*</span></label>
-    <input type="text" id="businessName" placeholder="e.g. Mike's Services LLC" required oninput="saveBizName()" onkeydown="if(event.key==='Enter')loadPortal()">
+    <!-- Placeholder must never be a real client's name. This said "e.g.
+         Mike's Services LLC", which showed one client's business to every
+         other client who opened the portal. Keep example text generic. -->
+    <input type="text" id="businessName" placeholder="Your business name" required oninput="saveBizName()" onkeydown="if(event.key==='Enter')loadPortal()">
     <label for="clientEmail" style="margin-top:14px">YOUR BUSINESS EMAIL <span style="color:var(--red)">*</span></label>
     <input type="email" id="clientEmail" placeholder="The email you used when you registered with KPW" required oninput="saveClientEmail()" onkeydown="if(event.key==='Enter')loadPortal()">
     <button class="load-portal-btn" id="loadPortalBtn" onclick="loadPortal()">Load Portal →</button>
@@ -1021,7 +1024,7 @@
         </div>
         <div style="margin-top:16px">
           <label class="field-label" for="owner-name">Your Name</label>
-          <input type="text" id="owner-name" placeholder="e.g. Mike Johnson">
+          <input type="text" id="owner-name" placeholder="Your name">
           <label class="field-label" for="owner-story">Tell us about yourself and your business</label>
           <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">💡 Tip: Be specific — job type, location, equipment, and outcome helps our system match this photo to the right content.</div>
           <textarea id="owner-story" rows="5" placeholder="Tell us your story. How did you get into this work? How long have you been doing it? What do you do differently than everyone else in your area?" oninput="updateCounter(this)"></textarea>
