@@ -1,0 +1,18 @@
+# GitHub Pages / Jekyll build config.
+#
+# No .nojekyll here, so GitHub runs Jekyll and publishes everything it is not
+# told to exclude. That included the internal markdown docs: this repo's
+# README was readable on the live URL. Nothing in it was secret, but agency
+# tooling notes do not belong on a client-facing host, and the next doc
+# somebody adds would be published too.
+#
+# .gitignore does not do this job. It only affects untracked files.
+#
+# Never exclude robots.txt, sitemap.xml, CNAME, or anything the page serves
+# (index.html, calendar.html, the mp3s).
+
+exclude:
+  - "*.md"
+  - "*.md.txt"
+  - .claude/
+  - .github/
