@@ -2693,6 +2693,25 @@ function applyWebsiteHistoryPrefill(data) {
   }
 }
 
+// Extra photo slots for a client's service sub-pages, keyed by Client ID,
+// then by the parent service's slug.
+//
+// These are deliberately NOT rows in the Services sheet. A Services row also
+// starts blog research and changes the post rotation, and these pages only
+// need a photo. Each slot here must have a matching entry in that client's
+// .github/photo-sync.config.json or the upload never reaches the site.
+const SUB_PAGE_SLOTS = {
+  MIKES_SERVICES_LLC: {
+    'septic-installation': [
+      { slug: 'septic-pumping',       name: 'Septic Tank Pumping',      hint: 'The pump truck at a tank, or a lid open on a pump-out, works great.' },
+      { slug: 'sewer-drain-cleaning', name: 'Sewer & Drain Cleaning',   hint: 'A sewer line dug up, a lateral line repair, or a yard drain being cleared.' },
+      { slug: 'septic-repair',        name: 'Septic Repair',            hint: 'A drain field or tank dug out and being fixed. Mid-job shots are best.' },
+      { slug: 'septic-inspection',    name: 'Septic Inspection',        hint: 'An open tank on a rural property, or you looking over a system.' },
+      { slug: 'septic-perc-test',     name: 'Perc Test & Soil Testing', hint: 'Test holes in the ground, or equipment set up on a building site.' }
+    ]
+  }
+};
+
 function buildWebsiteSlotCards(services, container) {
   const staticSlots = [
     {
@@ -2718,15 +2737,26 @@ function buildWebsiteSlotCards(services, container) {
   // Keyed by the service's own slug, not its position in the list — so if
   // services get reordered/added/removed in the sheet, a slot still maps
   // to the same service instead of whatever now happens to sit at index N.
-  const serviceSlots = services.map((s) => {
+  const subPages = SUB_PAGE_SLOTS[String(verifiedClientId || '').toUpperCase()] || {};
+  const serviceSlots = services.flatMap((s) => {
     const svcSlug = s.slug || slugifyService(s.serviceName);
-    return {
+    const main = {
       filename: `hero-${svcSlug}`,
       title: `${s.serviceName.toUpperCase()} HERO`,
       desc: `A photo showing ${s.serviceName} work. This goes on your ${s.serviceName} page. On-site action shots work best — equipment working, job in progress, or a before/after.`,
       category: 'hero',
       service: svcSlug
     };
+    // Sub-pages sit directly under their parent service so they read as
+    // part of it on the client's screen.
+    const subs = (subPages[svcSlug] || []).map(p => ({
+      filename: `hero-${p.slug}`,
+      title: `${p.name.toUpperCase()} PAGE`,
+      desc: `A photo for your ${p.name} page. ${p.hint}`,
+      category: 'hero',
+      service: svcSlug
+    }));
+    return [main, ...subs];
   });
 
   const finalSlots = [
