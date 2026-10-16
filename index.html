@@ -728,6 +728,7 @@
   .ws-slot-desc { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:14px; }
   .ws-saved-badge { display:none; color:var(--green); font-size:13px; font-weight:700; text-align:center; margin-top:8px; }
   .ws-slot-card.saved .ws-saved-badge { display:block; }
+  .ws-size-warn { margin-top:8px; padding:8px 10px; border-radius:8px; background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fcd34d; font-size:13px; line-height:1.4; }
 
   /* ── WEBSITE DONE BAR ── */
   .ws-done-bar {
@@ -2669,6 +2670,7 @@ function applyWebsiteHistoryPrefill(data) {
           img.className = 'preview';
           box.insertBefore(img, box.querySelector('.img-delete-btn'));
         }
+        img.onload = () => wsCheckPhotoSize(photo.slot, img);
         img.src = photo.url;
       }
       if (inner) inner.style.display = 'none';
@@ -2823,10 +2825,32 @@ function wsHandleFileSelect(input, filename) {
       img.className = 'preview';
       box.insertBefore(img, box.querySelector('.img-delete-btn'));
     }
+    img.onload = () => wsCheckPhotoSize(filename, img);
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
   wsUploadSlot(file, slot);
+}
+
+// Website heroes are 1200px wide. A photo much smaller than that gets
+// stretched and looks blurry on the live site. On 2026-10-16 five of Mike's
+// septic photos arrived at 206x206 (saved from a thumbnail, not the camera
+// roll). This warns but never blocks: the client's choice still goes live.
+// The logo and blog placeholder display small, so they get a lower bar.
+const WS_MIN_PHOTO_PX = { logo: 300, 'blog-placeholder': 600, default: 900 };
+function wsCheckPhotoSize(filename, img) {
+  const card = document.getElementById(`ws-card-${filename}`);
+  if (!card || !img.naturalWidth) return;
+  let warn = card.querySelector('.ws-size-warn');
+  const longest = Math.max(img.naturalWidth, img.naturalHeight);
+  const min = WS_MIN_PHOTO_PX[filename] || WS_MIN_PHOTO_PX.default;
+  if (longest >= min) { if (warn) warn.remove(); return; }
+  if (!warn) {
+    warn = document.createElement('div');
+    warn.className = 'ws-size-warn';
+    card.appendChild(warn);
+  }
+  warn.textContent = `⚠ This photo is small (${img.naturalWidth}×${img.naturalHeight}) and will look blurry on your website. Tap × and upload the original from your camera roll, not a saved or shared copy.`;
 }
 
 function wsDeleteSlot(filename, e) {
@@ -2848,6 +2872,7 @@ function wsDeleteSlot(filename, e) {
     const badge = card.querySelector('.ws-saved-badge');
     if (badge) { badge.textContent = '✓ Saved'; badge.style.display = 'none'; }
   }
+  if (card) { const w = card.querySelector('.ws-size-warn'); if (w) w.remove(); }
   delete wsUploaded[filename];
   wsUpdateDoneBar();
 }
